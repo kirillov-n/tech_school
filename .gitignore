@@ -1,7 +1,4 @@
-venv/
 tech_school_db
 __pycache__
-.vscode/
 *.pyc
 row/
-media/
