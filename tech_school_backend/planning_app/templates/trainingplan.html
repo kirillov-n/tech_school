@@ -1,0 +1,97 @@
+{% extends "admin/base.html" %}
+{% block content %}
+    <div class="col-12">
+        <p class="h1">Учебный план</p>
+        <div class="ml-auto">
+            <label for="filteringPlan">Отобразить план:</label>
+            <select class="form-control mb-2" id="filteringPlan">
+            <option selected></option>
+            {% for p in plans %}
+            <option value={{ p.id }}>{{ p }}</option>
+            {% endfor %}
+            </select>
+        </div>
+        <div class="ml-auto">
+            <button class="ml-1 btn btn-primary mb-2" id="filterSearch">Фильтровать</button>
+            <button class="ml-1 btn btn-default mb-2" id="resetAll">Сброс</button>
+        </div>
+        <div class="row col-12">
+            <div class="col-12 col-md-12">
+                <div class="card card-primary card-outline" style="overflow: auto;">
+                    <div class="card-header d-flex">
+                        <div class="card-title">
+                            Учебный план
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            <dl class="row">
+                                <dt class="col-sm-3">Год</dt>
+                                <dd class="col-sm-9">{{ plan.tp.year }}</dd>
+                                <dt class="col-sm-3">Статус</dt>
+                                <dd class="col-sm-9">{{ plan.tp.get_status_display }}</dd>
+                                <dt class="col-sm-3">Релевантность</dt>
+                                <dd class="col-sm-9">{{ plan.tp.get_relevance_display }}</dd>
+                                <dt class="col-sm-3">Создан</dt>
+                                <dd class="col-sm-9">{{ plan.tp.created_at }}</dd>
+                                <dt class="col-sm-3">Соответствующий календарный план</dt>
+                                <dd class="col-sm-9">{{ plan.tp.calendarplan }}</dd>
+                            </dl>
+                        </p>
+                        <table class="table">
+                            <div class="ml-auto">
+                                <select class="form-control form-control-sm" id="filteringType">
+                                <option selected>тип обучения (программы)</option>
+                                {% for type in ctypes %}
+                                <option value={{ type.id }}>{{ type }}</option>
+                                {% endfor %}
+                                </select>
+                            </div>
+                            <thread>
+                                <tr>
+                                    {% for heading in headings %}
+                                    <th>{{ heading }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thread>
+                            <tbody>
+                                {% for row in plan.rows %}
+                                <tr>
+                                    <td>{{ row.intp.group.program }}</td>
+                                    <td>{{ row.intp.group }}</td>
+                                    {% for month in row.tpds %}
+                                    <td>{{ month.hours }}</td>
+                                    {% endfor %}
+                                    <td>{{ row.x_sum }}</td>
+                                </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td colspan='2'>ИТОГО</td>
+                                    {% for month in plan.months_sum %}
+                                    <td>{{ month.sum }}</td>
+                                    {% endfor %}
+                                    <td>{{ plan.total_sum }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const filteringPlan = document.querySelector("#filteringPlan")
+
+        filterSearch.addEventListener("click", () => {
+            window.location.search = `?tplan=${filteringPlan.value}`
+        })
+
+        filteringType.addEventListener("change", () => {
+            window.location.search += `&ctype=${filteringType.value}`
+        })
+
+        document.querySelector("#resetAll").addEventListener("click", () => {
+            window.location.search = ""
+        })
+    </script>
+{% endblock %}

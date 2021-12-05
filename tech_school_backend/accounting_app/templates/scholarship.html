@@ -1,0 +1,102 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<div class="col-12">
+    <p class="h1">Расчёт стипендии</p>
+    <div class="ml-auto">
+        <div class="alert alert-light" role="alert">
+            {{ alert }}
+        </div>
+        <label for="filteringStudent">Студент:</label>
+        <select class="form-control mb-2" id="filteringStudent">
+        <option selected></option>
+        {% for s in students %}
+        <option value={{ s.id }}>{{ s }}</option>
+        {% endfor %}
+        </select>
+        <label for="filteringDate">Дата (месяц и год):</label>
+        <input class="form-control mb-2" type="date" id="filteringDate">
+    </div>
+    <div class="ml-auto">
+        <button class="ml-1 btn btn-primary mb-2" id="filterSearch">Фильтровать</button>
+        <button class="ml-1 btn btn-default mb-2" id="resetAll">Сброс</button>
+    </div>
+    <div class="row col-12">
+        <div class="col-12 col-md-12">
+            <div class="card card-primary card-outline" style="overflow: auto;">
+                <div class="card-header d-flex col-12">
+                    <div class="card-title">
+                        Стипендия студента
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        <dl class="row">
+                                <dt class="col-sm-3">Студент</dt>
+                                <dd class="col-sm-9">{{ student }}</dd>
+                                <dt class="col-sm-3">Группа</dt>
+                                <dd class="col-sm-9">{{ group }}</dd>
+                                <dt class="col-sm-3">Программа</dt>
+                                <dd class="col-sm-9">{{ program }}</dd>
+                            </dl>
+                    </p>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            {% for heading in headings %}
+                            <th>{{ heading }}</th>
+                            {% endfor %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                <ul>
+                                {% for e in exams %}
+                                    <li>{{ e.class_id.subject }}: {{ e.grade }}</li>
+                                {% endfor %}
+                                </ul>
+                                </td>
+                                <td>
+                                    <ul>
+                                    {% for a in avg %}
+                                        <li>{{ a.subject }}: {{ a.avg_point }}</li>
+                                    {% endfor %}
+                                    </ul>
+                                </td>
+                                <td>{{ total_grade }}</td>
+                                <td>{{ att.percent }} ({{ att.present }} / {{ att.total_hours }} ч.)</td>
+                                <td>
+                                    <select id="countMoney">
+                                        <option selected></option>
+                                        {% for norm in norms %}
+                                        <option value={{ norm.id }}>{{ norm.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td>{{ scholarship }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const filteringStudent = document.querySelector("#filteringStudent")
+    const filteringDate = document.querySelector("#filteringDate")
+    const countMoney = document.querySelector("#countMoney")
+
+    filterSearch.addEventListener("click", () => {
+        window.location.search = `?student=${filteringStudent.value}&date=${filteringDate.value}`
+    })
+
+    countMoney.addEventListener("change", () => {
+        window.location.search += `&norm=${countMoney.value}`
+    })
+
+    document.querySelector("#resetAll").addEventListener("click", () => {
+        window.location.search = ""
+    })
+</script>
+{% endblock %}

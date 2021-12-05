@@ -1,0 +1,194 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<div class="col-12">
+    <p class="h1">Расчёт зарплаты</p>
+    <div class="ml-auto">
+        <div class="alert alert-light" role="alert">
+            {{ alert }}
+        </div>
+        <label for="filteringTeacher">Преподаватель:</label>
+        <select class="form-control mb-2" id="filteringTeacher">
+        <option selected></option>
+        {% for t in teachers %}
+        <option value={{ t.id }}>{{ t }}</option>
+        {% endfor %}
+        </select>
+        <label for="filteringDate">Дата (месяц и год):</label>
+        <input class="form-control mb-2" type="date" id="filteringDate">
+    </div>
+    <div class="ml-auto">
+        <button class="ml-1 btn btn-primary mb-2" id="filterSearch">Фильтровать</button>
+        <button class="ml-1 btn btn-default mb-2" id="resetAll">Сброс</button>
+    </div>
+    <div class="row col-12">
+        <div class="col-12 col-md-12">
+            <div class="card card-primary card-outline" style="overflow: auto;">
+                <div class="card-header d-flex col-12">
+                    <div class="card-title">
+                        Общая сводка
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        <dl class="row">
+                            <dt class="col-sm-3">Преподаватель</dt>
+                            <dd class="col-sm-9">{{ info.teacher }}</dd>
+                            <dt class="col-sm-3">Уровень образования преполавателя</dt>
+                            <dd class="col-sm-9">{{ info.teacher.get_education_level_display }}</dd>
+                            <dt class="col-sm-3">Месяц и год</dt>
+                            <dd class="col-sm-9">{{ info.month }} {{ info.year }}</dd>
+                        </dl>
+                    </p>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            {% for heading in headings1 %}
+                            <th>{{ heading }}</th>
+                            {% endfor %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <ul>
+                                    {% for row in th_personal %}
+                                        <li>{{ row.subject }} {{ row.group }} {{ row.date }} {{ row.hours }} ч.</li>
+                                    {% endfor %}
+                                    </ul>
+                                </td>
+                                <td>
+                                    <ul>
+                                    {% for row in th_working %}
+                                        <li>{{ row.subject }} {{ row.group }} {{ row.date }} {{ row.hours }} ч.</li>
+                                    {% endfor %}
+                                    </ul>
+                                </td>
+                                <td>{{ sum_personal }}</td>
+                                <td>{{ sum_working }}</td>
+                                <td>{{ sum_total }}</td>
+                                <td>{{ salary_total }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row col-12">
+        <div class="col-12 col-md-12">
+            <div class="card card-primary card-outline" style="overflow: auto;">
+                <div class="card-header d-flex col-12">
+                    <div class="card-title">
+                        Данные о преподавании в рабочие часы
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Расчётные данные
+                    </p>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            {% for heading in headings2 %}
+                            <th>{{ heading }}</th>
+                            {% endfor %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in data_working %}
+                            <tr>
+                                <td>{{ row.group }}</td>
+                                <td>{{ row.group.get_edu_level_display }}</td>
+                                <td>{{ row.sum }}</td>
+                                <td>{{ row.norm }}
+                                    {{ no_norm }}
+                                    <dl class="row">
+                                        <dt class="col-sm-3">Тип часов</dt>
+                                        <dd class="col-sm-9">{{ row.norm.get_time_type_display }}</dd>
+                                        <dt class="col-sm-3">Уроввень образования</dt>
+                                        <dd class="col-sm-9">{{ row.norm.get_education_level_display }}</dd>
+                                        <dt class="col-sm-3">Контингент</dt>
+                                        <dd class="col-sm-9">{{ row.norm.get_students_display }}</dd>
+                                        <dt class="col-sm-3">Тариф</dt>
+                                        <dd class="col-sm-9">{{ row.norm.amount }}</dd>
+                                    </dl>
+                                </td>
+                                <td>{{ row.mult }}</td>
+                            </tr>
+                            {% endfor %}
+                            <tr>
+                                <td colspan='4'>Итого за рабочие часы, руб.</td>
+                                <td>{{ salary_working }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row col-12">
+        <div class="col-12 col-md-12">
+            <div class="card card-primary card-outline" style="overflow: auto;">
+                <div class="card-header d-flex col-12">
+                    <div class="card-title">
+                        Данные о преподавании в личные часы
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Расчётные данные
+                    </p>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            {% for heading in headings2 %}
+                            <th>{{ heading }}</th>
+                            {% endfor %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in data_personal %}
+                            <tr>
+                                <td>{{ row.group }}</td>
+                                <td>{{ row.group.get_edu_level_display }}</td>
+                                <td>{{ row.sum }}</td>
+                                <td>{{ row.norm }}
+                                    {{ no_norm }}
+                                    <dl class="row">
+                                        <dt class="col-sm-3">Тип часов</dt>
+                                        <dd class="col-sm-9">{{ row.norm.get_time_type_display }}</dd>
+                                        <dt class="col-sm-3">Уроввень образования</dt>
+                                        <dd class="col-sm-9">{{ row.norm.get_education_level_display }}</dd>
+                                        <dt class="col-sm-3">Контингент</dt>
+                                        <dd class="col-sm-9">{{ row.norm.get_students_display }}</dd>
+                                        <dt class="col-sm-3">Тариф</dt>
+                                        <dd class="col-sm-9">{{ row.norm.amount }}</dd>
+                                    </dl>
+                                </td>
+                                <td>{{ row.mult }}</td>
+                            </tr>
+                            {% endfor %}
+                            <tr>
+                                <td colspan='4'>Итого за рабочие часы, руб.</td>
+                                <td>{{ salary_personal }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const filteringTeacher = document.querySelector("#filteringTeacher")
+    const filteringDate = document.querySelector("#filteringDate")
+
+    filterSearch.addEventListener("click", () => {
+        window.location.search = `?teacher=${filteringTeacher.value}&date=${filteringDate.value}`
+    })
+
+    document.querySelector("#resetAll").addEventListener("click", () => {
+        window.location.search = ""
+    })
+</script>
+{% endblock %}

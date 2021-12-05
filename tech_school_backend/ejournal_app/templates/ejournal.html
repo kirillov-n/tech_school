@@ -1,0 +1,132 @@
+{% extends "admin/base.html" %}
+{% block content %}
+    <div class="col-12">
+        <p class="h1">Средние баллы и посещаемость</p>
+        <div class="ml-auto">
+            <div class="alert alert-light" role="alert">
+                {{ alert }}
+            </div>
+            <label for="filteringGroup">Отобразить группу:</label>
+            <select class="form-control mb-2" id="filteringGroup">
+            <option selected></option>
+            {% for g in groups %}
+            <option value={{ g.id }}>{{ g.name }}</option>
+            {% endfor %}
+            </select>
+            <label for="filteringDate">Дата (месяц и год):</label>
+            <input class="form-control mb-2" type="date" id="filteringDate">
+        </div>
+        <div class="ml-auto">
+            <button class="ml-1 btn btn-primary mb-2" id="filterSearch">Фильтровать</button>
+            <button class="ml-1 btn btn-default mb-2" id="resetAll">Сброс</button>
+        </div>
+        <div class="row col-12">
+            <div class="col-12 col-md-6">
+                <div class="card card-primary card-outline" style="overflow: auto;">
+                    <div class="card-header d-flex">
+                        <div class="card-title">
+                            Средние баллы
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                {% for heading in headings1 %}
+                                <th>{{ heading }}</th>
+                                {% endfor %}
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for row in avg %}
+                                <tr>
+                                    <td>{{ row.student }}</td>
+                                    <td>{{ row.subject }}</td>
+                                    <td>{{ row.avg_point }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="card card-primary card-outline" style="overflow: auto;">
+                    <div class="card-header d-flex">
+                        <div class="card-title">
+                            Посещаемость
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                {% for heading in headings2 %}
+                                <th>{{ heading }}</th>
+                                {% endfor %}
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for row in att %}
+                                <tr>
+                                    <td>{{ row.student }}</td>
+                                    <td>{{ row.subject }}</td>
+                                    <td>{{ row.present }}</td>
+                                    <td>{{ row.absent }}</td>
+                                    <td>{{ row.percent }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row col-12">
+            <div class="col-12 col-md-12">
+                <div class="card card-primary card-outline" style="overflow: auto;">
+                    <div class="card-header d-flex">
+                        <div class="card-title">
+                            Итоговые значения
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    {% for heading in headings3 %}
+                                    <th>{{ heading }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for row in totals %}
+                                <tr>
+                                    <td>{{ row.student }}</td>
+                                    <td>{{ row.data.present }}</td>
+                                    <td>{{ total_hours }}</td>
+                                    <td>{{ row.data.percent }}</td>
+                                    <td>{{ row.data.avgs }}</td>
+                                    <td>{{ row.data.total_avg }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const filteringGroup = document.querySelector("#filteringGroup")
+        const filteringDate = document.querySelector("#filteringDate")
+
+        filterSearch.addEventListener("click", () => {
+            window.location.search = `?group=${filteringGroup.value}&date=${filteringDate.value}`
+        })
+
+        document.querySelector("#resetAll").addEventListener("click", () => {
+            window.location.search = ""
+        })
+    </script>
+{% endblock %}

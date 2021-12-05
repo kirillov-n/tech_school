@@ -1,0 +1,54 @@
+{% extends "admin/base.html" %}
+{% block content %}
+    <div class="col-12">
+        <p class="h1">Учёт часов (год)</p>
+        <div class="ml-auto">
+            <label for="filteringDate">Дата (будет использован год):</label>
+            <input class="form-control mb-2" type="date" id="filteringDate">
+        </div>
+        <div class="ml-auto">
+            <button class="ml-1 btn btn-primary mb-2" id="filterSearch">Фильтровать</button>
+            <button class="ml-1 btn btn-default mb-2" id="resetAll">Сброс</button>
+        </div>
+        <div class="card card-primary card-outline">
+            <div class="card-header d-flex col-12">
+                <div class="card-title">
+                    Учёт часов преподавания {{ year }}
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                      <tr>
+                          {% for heading in headings %}
+                          <th>{{ heading }}</th>
+                          {% endfor %}
+                      </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in data %}
+                        <tr>
+                            <td>{{ row.teacher }}</td>
+                            <td>{{ row.sum_total }}</td>
+                            <td>{{ row.sum_personal }}</td>
+                            <td>{{ row.sum_working }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                  </table>
+            </div>
+        </div>
+    </div>
+    <script>
+        const filteringDate = document.querySelector("#filteringDate")
+
+        filterSearch.addEventListener("click", () => {
+            window.location.search = `?date=${filteringDate.value}`
+        })
+
+        document.querySelector("#resetAll").addEventListener("click", () => {
+            window.location.search = ""
+        })
+    </script>
+
+{% endblock %}

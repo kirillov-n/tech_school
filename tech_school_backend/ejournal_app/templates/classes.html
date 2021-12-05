@@ -1,0 +1,111 @@
+{% extends "admin/base.html" %}
+{% block content %}
+    <div class="col-12">
+        <p class="h1">Занятия</p>
+        <div class="ml-auto">
+            <label for="filteringGroup">Группа:</label>
+            <select class="form-control mb-2" id="filteringGroup">
+                <option selected></option>
+                {% for g in groups %}
+                <option value={{ g.id }}>{{ g.name }}</option>
+                {% endfor %}
+            </select>
+            <label for="filteringTeacher">Преподаватель:</label>
+            <select class="form-control mb-2" id="filteringTeacher">
+                <option selected></option>
+                {% for t in teachers %}
+                <option value={{ t.id }}>{{ t }}</option>
+                {% endfor %}
+            </select>
+            <label for="filteringType">Тип занятия:</label>
+            <select class="form-control mb-2" id="filteringType">
+                <option selected></option>
+                {% for type in ctypes %}
+                <option value={{ type.id }}>{{ type }}</option>
+                {% endfor %}
+            </select>
+            <label for="filteringDate">Дата:</label>
+            <input class="form-control mb-2" type="date" id="filteringDate">
+            <div class="row">
+                <div class="col">
+                    <label for="dateFrom">От</label>
+                    <input type="date" class="form-control mb-2" id="dateFrom">
+                </div>
+                <div class="col">
+                    <label for="dateTo">До</label>
+                    <input type="date" class="form-control mb-2" id="dateTo">
+                </div>        
+            </div>
+        </div>
+        <div class="ml-auto">
+            <button class="ml-1 btn btn-primary mb-2" id="filterSearch">Фильтровать</button>
+            <button class="ml-1 btn btn-default mb-2" id="resetAll">Сброс</button>
+        </div>
+        <div class="row col-12">
+            {% for c in classes %}
+            <div class="col-12 col-md-6">
+                <div class="card card-primary card-outline" style="overflow: auto;">
+                    <div class="card-header d-flex">
+                        <div class="card-title">
+                            {{ c.class.class_type }}
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            <dl class="row">
+                                <dt class="col-sm-3">Группа</dt>
+                                <dd class="col-sm-9">{{ c.class.group }}</dd>
+                                <dt class="col-sm-3">Преподаватель</dt>
+                                <dd class="col-sm-9">{{ c.class.teacher }}</dd>
+                                <dt class="col-sm-3">Предмет</dt>
+                                <dd class="col-sm-9">{{ c.class.subject }}</dd>
+                                <dt class="col-sm-3">Когда</dt>
+                                <dd class="col-sm-9">{{ c.when }}</dd>
+                                <dt class="col-sm-3">Длительность</dt>
+                                <dd class="col-sm-9">{{ c.class.hours }} ч.</dd>
+                            </dl>
+                        </p>
+                        <a class="btn btn-link" data-toggle="collapse" href="#collapseMembers{{ forloop.counter }}" role="button" aria-expanded="false" aria-controls="collapseMembers">Студенты</a>
+                        <div class="collapse" id="collapseMembers{{ forloop.counter }}">
+                            <table class="table" style="overflow: auto;">
+                                <thead>
+                                <tr>
+                                    <th>Студент</th>
+                                    <th>Посещаемость</th>
+                                    <th>Оценки</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for row in c.members %}
+                                    <tr>
+                                        <td>{{ row.member }}</td>
+                                        <td>{{ row.attendance }}</td>
+                                        <td>{{ row.grades }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <script>
+        const filteringDate = document.querySelector("#filteringDate")
+        const filteringGroup = document.querySelector("#filteringGroup")
+        const filteringTeacher = document.querySelector("#filteringTeacher")
+        const filteringType = document.querySelector("#filteringType")
+        const dateFrom = document.querySelector("#dateFrom")
+        const dateTo = document.querySelector("#dateTo")
+
+        filterSearch.addEventListener("click", () => {
+            window.location.search = `?group=${filteringGroup.value}&date=${filteringDate.value}&teacher=${filteringTeacher.value}&ctype=${filteringType.value}&dfrom=${dateFrom.value}&dto=${dateTo.value}`
+        })
+
+        document.querySelector("#resetAll").addEventListener("click", () => {
+            window.location.search = ""
+        })
+    </script>
+{% endblock %}

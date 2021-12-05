@@ -1,0 +1,55 @@
+{% extends "admin/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<p>{{ survey }}</p>
+
+{% if worker %}
+    <p>
+        Для анализа портрета личности, приобретённых компетенций и имеющихся профессиональных качеств Вашего обучающегося {{ student }}, ответьте, пожалуйста, на вопросы данного теста. Оценивание проводите по шкале от 1 до 5:
+        5 — очень сильно выражено,
+        1 — практически не выражено.
+        Если вы затрудняетесь ответить на конкретный вопрос, можете вернуться к нему в конце или поставить «3» как среднее значение.
+    </p>
+{% else %}
+    <p>
+        После вопроса поставьте вашу оценку от 1 до 5, где 1 — полностью не согласен, а 5 — полностью согласен.
+        Если вы затрудняетесь ответить на конкретный вопрос, можете вернуться к нему в конце или поставить «3» как среднее значение.
+    </p>
+{% endif %}
+
+<form method="POST" enctype="multipart/form-data">
+    
+    <hr>
+    {% csrf_token %}
+    {{ formset.management_form }}
+
+
+    <!--{{ formset.as_p}}-->
+
+    
+    {% for form in formset %}
+    
+    <div class="form-row">
+        <div class="form-group mb-0 invisible">
+            {{ form.surveywho }}
+        </div>
+        <div class="form-group mb-0">
+            {{ form.question|as_crispy_field }}
+        </div>
+        <div class="form-group col-md-1 mb-0">
+            {{ form.answer|as_crispy_field }}
+        </div>
+    </div>
+    
+    {% endfor %}
+    
+
+    <br>
+    <input type="submit" class="btn btn-success" value="Отправить ответы">
+    <br>
+</form>
+
+{% endblock %}

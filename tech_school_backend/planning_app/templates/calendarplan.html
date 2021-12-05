@@ -1,0 +1,95 @@
+{% extends "admin/base.html" %}
+{% block content %}
+    <div class="col-12">
+        <p class="h1">Календарный план</p>
+        <div class="ml-auto">
+            <label for="filteringPlan">Отобразить план:</label>
+            <select class="form-control mb-2" id="filteringPlan">
+            <option selected></option>
+            {% for p in plans %}
+            <option value={{ p.id }}>{{ p }}</option>
+            {% endfor %}
+            </select>
+        </div>
+        <div class="ml-auto">
+            <button class="ml-1 btn btn-primary mb-2" id="filterSearch">Фильтровать</button>
+            <button class="ml-1 btn btn-default mb-2" id="resetAll">Сброс</button>
+        </div>
+        <div class="row col-12">
+            <div class="col-12 col-md-12">
+                <div class="card card-primary card-outline" style="overflow: auto;">
+                    <div class="card-header d-flex">
+                        <div class="card-title">
+                            Календарный план
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            <dl class="row">
+                                <dt class="col-sm-3">Год</dt>
+                                <dd class="col-sm-9">{{ plan.cp.year }}</dd>
+                                <dt class="col-sm-3">Релевантность</dt>
+                                <dd class="col-sm-9">{{ plan.cp.get_relevance_display }}</dd>
+                                <dt class="col-sm-3">Создан</dt>
+                                <dd class="col-sm-9">{{ plan.cp.created_at }}</dd>
+                            </dl>
+                        </p>
+                        <table class="table">
+                            <div class="ml-auto">
+                                <select class="form-control form-control-sm" id="filteringType">
+                                <option selected>тип обучения (программы)</option>
+                                {% for type in ctypes %}
+                                <option value={{ type.id }}>{{ type }}</option>
+                                {% endfor %}
+                                </select>
+                            </div>
+                            <thread>
+                                <tr>
+                                    {% for heading in headings %}
+                                    <th>{{ heading }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thread>
+                            <tbody>
+                                {% for row in plan.rows %}
+                                <tr>
+                                    <td>{{ row.incp.program }}</td>
+                                    <td>{{ row.incp.program.course_type}}</td>
+                                    <td>{{ row.incp.people_number }}</td>
+                                    <td>{{ row.incp.groups_number }}</td>
+                                    {% for month in row.cpds %}
+                                    <td>{{ month.groups_number }}</td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td colspan='2'>ИТОГО</td>
+                                    <td>{{ plan.people_sum }}</td>
+                                    <td>{{ plan.groups_sum }}</td>
+                                    {% for month in plan.months_sum %}
+                                    <td>{{ month.sum }}</td>
+                                    {% endfor %}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const filteringPlan = document.querySelector("#filteringPlan")
+
+        filterSearch.addEventListener("click", () => {
+            window.location.search = `?cplan=${filteringPlan.value}`
+        })
+
+        filteringType.addEventListener("change", () => {
+            window.location.search += `&ctype=${filteringType.value}`
+        })
+
+        document.querySelector("#resetAll").addEventListener("click", () => {
+            window.location.search = ""
+        })
+    </script>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "admin/base.html" %}
+{% block content %}
+    <div class="col-12">
+        <p class="h1">Учёт часов (группа, месяц)</p>
+        <div class="ml-auto">
+            <label for="filteringGroup">Отобразить группу:</label>
+            <select class="form-control mb-2" id="filteringGroup">
+            <option selected></option>
+            {% for g in groups %}
+            <option value={{ g.id }}>{{ g.name }}</option>
+            {% endfor %}
+            </select>
+            <label for="filteringDate">Дата (месяц и год):</label>
+            <input class="form-control mb-2" type="date" id="filteringDate">
+        </div>
+        <div class="ml-auto">
+            <button class="ml-1 btn btn-primary mb-2" id="filterSearch">Фильтровать</button>
+            <button class="ml-1 btn btn-default mb-2" id="resetAll">Сброс</button>
+        </div>
+        <div class="card card-primary card-outline" style="overflow: auto;">
+            <div class="card-header d-flex col-12">
+                <div class="card-title">
+                    Учёт часов преподавания
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                      <tr>
+                          {% for heading in headings %}
+                          <th>{{ heading }}</th>
+                          {% endfor %}
+                      </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in training_hours %}
+                        <tr>
+                            <td>{{ row.teacher }}</td>
+                            <td>
+                                <ul>
+                                {% for teacher in row.data %}
+                                    <li>{{ teacher.subject }} {{ teacher.group }} {{ teacher.date }} {{ teacher.hours }} ч. ({{ teacher.get_time_type_display }})</li>
+                                {% endfor %}
+                                </ul>
+                            </td>
+                            <td>{{ row.sum_personal }}</td>
+                            <td>{{ row.sum_working }}</td>
+                            <td>{{ row.sum_total }}</td>
+                        </tr>
+                    {% endfor %}
+                        <tr>
+                            <td colspan='2'>ИТОГО</td>
+                            <td>{{ totals.total_p }}</td>
+                            <td>{{ totals.total_w }}</td>
+                            <td>{{ totals.total }}</td>
+                        </tr>
+                    </tbody>
+                  </table>
+            </div>
+        </div>
+    </div>
+    <script>
+        const filteringDate = document.querySelector("#filteringDate")
+        const filteringGroup = document.querySelector("#filteringGroup")
+
+        filterSearch.addEventListener("click", () => {
+            window.location.search = `?group=${filteringGroup.value}&date=${filteringDate.value}`
+        })
+
+        document.querySelector("#resetAll").addEventListener("click", () => {
+            window.location.search = ""
+        })
+    </script>
+
+{% endblock %}

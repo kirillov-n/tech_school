@@ -1,0 +1,198 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h4> Результаты опросов </h4>
+<div class="col-12">
+    <div class="ml-auto">
+        <label for="filteringGroup">Группа:</label>
+        <select class="form-control mb-2" id="filteringGroup">
+        <option selected></option>
+        {% for g in groups %}
+        <option value={{ g.id }}>{{ g.name }}</option>
+        {% endfor %}
+        </select>
+    </div>
+    <div class="ml-auto">
+        <button class="ml-1 btn btn-primary mb-2" id="filterSearch">Фильтровать</button>
+        <button class="ml-1 btn btn-default mb-2" id="resetAll">Сброс</button>
+    </div>
+    {% if group %}
+        <div class ="card-body">
+            <b>Результаты опросов по группе {{ group_name }}</b>
+        </div>
+        <div class ="card-body">
+            {% if CLEI %}
+                <p>Студенты, отстающие от норм по CLEI:</p>
+                {% for bad in clei_bad_norm %}
+                    <p>{{ bad }}</p>
+                {% endfor %}
+                <hr>
+                <p>Студенты, отстающие от группы по CLEI:</p>
+                {% for bad in clei_bad_group %}
+                    <p>{{ bad }}</p>
+                {% endfor %}
+                <hr>
+            {% endif %}
+            {% if Big5 %}
+                <p>Студенты, отстающие от группы по Big5:</p>
+                {% for bad in big5_bad_group %}
+                    <p>{{ bad }}</p>
+                {% endfor %}
+                <hr>
+            {% endif %}
+            {% if PROF %}
+                <p>Студенты, отстающие от группы по профессиональным навыкам:</p>
+                {% for bad in prof_bad_group %}
+                    <p>{{ bad }}</p>
+                {% endfor %}
+                <hr>
+            {% endif %}
+
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                <tr>
+                    {% for heading in headings_CLEI %}
+                    <th>{{ heading }}</th>
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                <tr class="text-primary">
+                    <td>Норма</td>
+                    <td>{{ norms.SE }}</td>
+                    <td>{{ norms.TO }}</td>
+                    <td>{{ norms.AS }}</td>
+                    <td>{{ norms.CI }}</td>
+                    <td>{{ norms.ER }}</td>
+                    <td>{{ norms.CC }}</td>
+                    <td>{{ norms.mean }}</td>
+                </tr>
+                
+                
+                {% for value in CLEI %}
+                <tr>
+                    
+                    <td>{{ value.student }}</td>
+                    <td>{{ value.SE }}</td>
+                    <td>{{ value.TO }}</td>
+                    <td>{{ value.AS }}</td>
+                    <td>{{ value.CI }}</td>
+                    <td>{{ value.ER }}</td>
+                    <td>{{ value.CC }}</td>
+                    <td class = "text-info">{{ value.mean }}</td>
+                    
+                </tr>
+                {% endfor %}
+                
+                <tr class="text-warning">
+                    <td>Среднее</td>
+                    <td>{{ CLEI_group.SE }}</td>
+                    <td>{{ CLEI_group.TO }}</td>
+                    <td>{{ CLEI_group.AS }}</td>
+                    <td>{{ CLEI_group.CI }}</td>
+                    <td>{{ CLEI_group.ER }}</td>
+                    <td>{{ CLEI_group.CC }}</td>
+                    <td>{{ CLEI_ave }}</td>
+                </tr>
+
+                </tbody>
+            </table>
+            <p>{{ description_CLEI }}</p>
+            <table class="table">
+                <thead>
+                    <tr>
+                        {% for heading in headings_Big5 %}
+                        <th>{{ heading }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for value in Big5 %}
+                    <tr>
+
+                        <td>{{ value.worker }}</td>
+                        <td>{{ value.student }}</td>
+                        <td>{{ value.A }}</td>
+                        <td>{{ value.C }}</td>
+                        <td>{{ value.N }}</td>
+                        <td>{{ value.O }}</td>
+                        <td class = "text-info">{{ value.mean }}</td>
+                        
+                    </tr>
+                    {% endfor %}
+
+                    <tr class="text-warning">
+                        <td></td>
+                        <td>Среднее</td>
+                        <td>{{ Big5_group.A }}</td>
+                        <td>{{ Big5_group.C }}</td>
+                        <td>{{ Big5_group.N }}</td>
+                        <td>{{ Big5_group.O }}</td>
+                        <td>{{ Big5_ave }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table">
+                <thead>
+                    <tr>
+                        {% for heading in headings_360 %}
+                        <th>{{ heading }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for value in PROF %}
+                    <tr>
+                        
+                        <td>{{ value.worker }}</td>
+                        <td>{{ value.student }}</td>
+                        <td>{{ value.P1 }}</td>
+                        <td>{{ value.P2 }}</td>
+                        <td>{{ value.P3 }}</td>
+                        <td>{{ value.P4 }}</td>
+                        <td>{{ value.P5 }}</td>
+                        <td>{{ value.P6 }}</td>
+                        <td>{{ value.P7 }}</td>
+                        <td>{{ value.P8 }}</td>
+                        <td>{{ value.P9 }}</td>
+                        <td class = "text-info">{{ value.mean }}</td>
+                        
+                    </tr>
+                    {% endfor %}
+
+                    <tr class="text-warning">
+                        <td></td>
+                        <td>Среднее</td>
+                        <td>{{ PROF_group.P1 }}</td>
+                        <td>{{ PROF_group.P2 }}</td>
+                        <td>{{ PROF_group.P3 }}</td>
+                        <td>{{ PROF_group.P4 }}</td>
+                        <td>{{ PROF_group.P5 }}</td>
+                        <td>{{ PROF_group.P6 }}</td>
+                        <td>{{ PROF_group.P7 }}</td>
+                        <td>{{ PROF_group.P8 }}</td>
+                        <td>{{ PROF_group.P9 }}</td>
+                        <td>{{ PROF_ave }}</td>
+                    </tr>
+
+                </tbody>
+            </table>
+            <p>{{ description_360 }}</p>
+
+        </div>
+
+    {% endif %}
+
+</div>
+<script>
+    const filteringGroup = document.querySelector("#filteringGroup")
+    filterSearch.addEventListener("click", () => {
+            window.location.search = `?group=${filteringGroup.value}`
+        })
+
+        document.querySelector("#resetAll").addEventListener("click", () => {
+            window.location.search = ""
+        })
+</script>
+{% endblock %}
