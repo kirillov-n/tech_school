@@ -11,4 +11,6 @@ urlpatterns = [
     # path to token and refreshing it
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    path('wd/', WorkingDatesView.as_view(), name='calendar'),
 ]

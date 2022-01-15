@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
@@ -26,7 +25,6 @@ SECRET_KEY = 'django-insecure-kszi0n92%ihkc)0-pac^p&_=(z^w1&v244!8ov6ecf8g8r%bjd
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -51,7 +49,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'crispy_forms',
     'django_extensions',
-    ]
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -76,6 +74,7 @@ TEMPLATES = [
             'ejournal_app/templates/',
             'planning_app/templates/',
             'survey_app/templates',
+            'tech_school_app/templates',
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -91,7 +90,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'tech_school_backend.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
@@ -105,7 +103,6 @@ DATABASES = {
         "PORT": 5432,  # default postgres port
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -141,7 +138,6 @@ CORS_ALLOW_METHODS = [
     'PUT',
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
@@ -154,7 +150,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
@@ -169,11 +164,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Authentication
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [ 
+    'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
     "DEFAULT_PARSER_CLASSES": [
-        "rest_framework.parsers.JSONParser", 
+        "rest_framework.parsers.JSONParser",
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
@@ -182,7 +177,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-   'AUTH_HEADER_TYPES': ('JWT',),
+    'AUTH_HEADER_TYPES': ('JWT',),
 }
 
 JAZZMIN_SETTINGS = {
@@ -196,12 +191,18 @@ JAZZMIN_SETTINGS = {
             {"name": "Учебный план (таблица)", "url": "admin:trainingplan_view", "icon": "fas fa-box-open"},
             {"name": "Расчёт зарплаты", "url": "admin:salarycount_view", "icon": "fas fa-box-open"},
             {"name": "Расчёт стипендии", "url": "admin:scholarshipcount_view", "icon": "fas fa-box-open"},
+            {"name": "Производственный календарь (календарь)", "url": "admin:workingdates_view", "icon": "fas fa-box-open"},
         ],
         "survey_app": [
             {"name": "Результаты опросов", "url": "admin:surveyresults_view", "icon": "fas fa-poll-h"},
         ]
     }
 }
+JAZZMIN_UI_TWEAKS = {
+    "theme": "flatly",
+    # "dark_mode_theme": "darkly",
+}
+
 
 # MEDIA SECTION
 MEDIA_ROOT = "media"
@@ -221,6 +222,6 @@ EMAIL_USE_SSL = True
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 GRAPH_MODELS = {
-  'all_applications': True,
-  'group_models': True,
+    'all_applications': True,
+    'group_models': True,
 }

@@ -1,0 +1,106 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="col-12">
+        <p class="h1">Производственный календарь</p>
+        <div class="row col-12">
+            <div class="col-12 col-md-12">
+                <div class="card card-primary card-outline" style="overflow: auto;">
+                    <div class="card-body">
+                        <table class="table">
+                            <tbody>
+                                    <tr>
+                                        <td><b>Январь</b></td>
+                                        {% for date, label in cal.jan %}
+                                            <td>{{ date }}<br>{{ label }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td><b>Февраль</b></td>
+                                        {% for date, label in cal.feb %}
+                                            <td>{{ date }}<br>{{ label }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td><b>Март</b></td>
+                                        {% for date, label in cal.mar %}
+                                            <td>{{ date }}<br>{{ label }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td><b>Апрель</b></td>
+                                        {% for date, label in cal.apr %}
+                                            <td>{{ date }}<br>{{ label }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td><b>Май</b></td>
+                                        {% for date, label in cal.may %}
+                                            <td>{{ date }}<br>{{ label }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td><b>Июнь</b></td>
+                                        {% for date, label in cal.jun %}
+                                            <td>{{ date }}<br>{{ label }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td><b>Июль</b></td>
+                                        {% for date, label in cal.jul %}
+                                            <td>{{ date }}<br>{{ label }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td><b>Август</b></td>
+                                        {% for date, label in cal.aug %}
+                                            <td>{{ date }}<br>{{ label }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td><b>Сентябрь</b></td>
+                                        {% for date, label in cal.sep %}
+                                            <td>{{ date }}<br>{{ label }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td><b>Октябрь</b></td>
+                                        {% for date, label in cal.oct %}
+                                            <td>{{ date }}<br>{{ label }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td><b>Ноябрь</b></td>
+                                        {% for date, label in cal.nov %}
+                                            <td>{{ date }}<br>{{ label }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td><b>Декабрь</b></td>
+                                        {% for date, label in cal.dec %}
+                                            <td>{{ date }}<br>{{ label }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            const filteringPlan = document.querySelector("#filteringPlan")
+
+            filterSearch.addEventListener("click", () => {
+                window.location.search = `?cplan=${filteringPlan.value}`
+            })
+
+            filteringType.addEventListener("change", () => {
+                window.location.search += `&ctype=${filteringType.value}`
+            })
+
+            document.querySelector("#resetAll").addEventListener("click", () => {
+                window.location.search = ""
+            })
+        </script>
+    {% endblock %}

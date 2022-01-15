@@ -1,7 +1,9 @@
 from django.contrib import admin
 from tech_school_app.models import *
 from django.urls import path
-from .views import HoursView, HoursYearView
+
+from tech_school_app.views import WorkingDatesView
+from .views import *
 
 
 @admin.register(TrainingHours)
@@ -24,8 +26,8 @@ class TrainingHoursAdmin(admin.ModelAdmin):
         'time_type',
         'date',
     )
-    
-    readonly_fields=('who_changed_last', 'created_at',)
+
+    readonly_fields = ('who_changed_last', 'created_at',)
 
     date_hierarchy = 'date'
 
@@ -35,7 +37,8 @@ class TrainingHoursAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         urls = super().get_urls()
-        return urls + [path("hours_view", HoursView.as_view(), name="hours_view"), path("hoursyear_view", HoursYearView.as_view(), name="hoursyear_view")]
+        return urls + [path("hours_view", HoursView.as_view(), name="hours_view"),
+                       path("hoursyear_view", HoursYearView.as_view(), name="hoursyear_view")]
 
 
 @admin.register(DraftTH)
@@ -46,7 +49,7 @@ class DraftTHDetails(admin.ModelAdmin):
         'who_changed',
     )
 
-    list_filter = ('created_at', 'who_changed', 'content', )
+    list_filter = ('created_at', 'who_changed', 'content',)
 
     readonly_fields = (
         'content',
@@ -54,7 +57,9 @@ class DraftTHDetails(admin.ModelAdmin):
         'who_changed',
     )
 
+
 admin.site.register(HoursNorm)
+
 
 @admin.register(WorkingDates)
 class WorkingDatesAdmin(admin.ModelAdmin):
@@ -72,3 +77,7 @@ class WorkingDatesAdmin(admin.ModelAdmin):
     date_hierarchy = 'date'
 
     readonly_fields = ('in_hours',)
+
+    def get_urls(self):
+        urls = super().get_urls()
+        return urls + [path("workingdates_view", WorkingDatesView.as_view(), name="workingdates_view")]
