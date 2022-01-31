@@ -455,7 +455,7 @@ class Class(models.Model):
         th = TrainingHours.objects.filter(group=_group, teacher=_teacher, subject=_subject, date=_date)
         classes = Class.objects.filter(when=self.when)
         hours_th = th.aggregate(Sum('hours'))["hours__sum"]
-        hours_classes = classes.aggregate(Sum('hours'))["hours__sum"]
+        hours_classes = classes.aggregate(Sum('hours'))["hours__sum"] if len(classes) != 0 else 0
         plus_hours = self.hours
         if not self.id:
             if hours_classes + plus_hours <= hours_th:
