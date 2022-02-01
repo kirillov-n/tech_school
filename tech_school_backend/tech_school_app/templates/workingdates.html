@@ -1,6 +1,17 @@
 {% extends "admin/base.html" %}
 
 {% block content %}
+<style>
+    .vertical{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 250px;
+        height: 150px;
+        border : 1px solid black;
+        margin: 5px
+    }
+</style>
 <div class="col-12">
         <p class="h1">Производственный календарь</p>
         <div class="row col-12">
@@ -10,75 +21,364 @@
                         <table class="table">
                             <tbody>
                                     <tr>
-                                        <td><b>Январь</b></td>
+                                        <td class="align-middle"><b>Январь</b></td>
                                         {% for date, label in cal.jan %}
-                                            <td>{{ date }}<br>{{ label }}</td>
+{#                                            <td>{{ date }}<br>{{ label }}</td>#}
+                                            {% if label == "Пр" %}
+                                                <td>
+                                                    <div class="badge text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-danger text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Праздник
+                                                    </div>
+                                                </td>
+                                            {% elif label == "8" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-info text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Полный рабочий день
+                                                    </div>
+                                                </td>
+                                            {% elif label == "7" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-warning text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Короткий рабочий день
+                                                    </div>
+                                                </td>
+                                            {% endif %}
                                         {% endfor %}
                                     </tr>
                                     <tr>
-                                        <td><b>Февраль</b></td>
+                                        <td class="align-middle"><b>Февраль</b></td>
                                         {% for date, label in cal.feb %}
-                                            <td>{{ date }}<br>{{ label }}</td>
+                                            {% if label == "Пр" %}
+                                                <td>
+                                                    <div class="badge text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-danger text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Праздник
+                                                    </div>
+                                                </td>
+                                            {% elif label == "8" %}
+                                                <td>
+                                                    <div class="badge text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-info text-wrap align-middle vertical badge-pill" style="width: 31px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Полный рабочий день
+                                                    </div>
+                                                </td>
+                                            {% elif label == "7" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-warning text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Короткий рабочий день
+                                                    </div>
+                                                </td>
+                                            {% endif %}
                                         {% endfor %}
                                     </tr>
                                     <tr>
-                                        <td><b>Март</b></td>
+                                        <td class="align-middle"><b>Март</b></td>
                                         {% for date, label in cal.mar %}
-                                            <td>{{ date }}<br>{{ label }}</td>
+                                            {% if label == "Пр" %}
+                                                <td>
+                                                    <div class="badge text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-danger text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Праздник
+                                                    </div>
+                                                </td>
+                                            {% elif label == "8" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-info text-wrap align-middle vertical badge-pill" style="width: 31px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Полный рабочий день
+                                                    </div>
+                                                </td>
+                                            {% elif label == "7" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-warning text-wrap align-middle vertical badge-pill" style="width: 31px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Короткий рабочий день
+                                                    </div>
+                                                </td>
+                                            {% endif %}
                                         {% endfor %}
                                     </tr>
                                     <tr>
-                                        <td><b>Апрель</b></td>
+                                        <td class="align-middle"><b>Апрель</b></td>
                                         {% for date, label in cal.apr %}
-                                            <td>{{ date }}<br>{{ label }}</td>
+                                            {% if label == "Пр" %}
+                                                <td>
+                                                    <div class="badge text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-danger text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Праздник
+                                                    </div>
+                                                </td>
+                                            {% elif label == "8" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-info text-wrap align-middle vertical badge-pill" style="width: 31px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Полный рабочий день
+                                                    </div>
+                                                </td>
+                                            {% elif label == "7" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-warning text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Короткий рабочий день
+                                                    </div>
+                                                </td>
+                                            {% endif %}
                                         {% endfor %}
                                     </tr>
                                     <tr>
-                                        <td><b>Май</b></td>
+                                        <td class="align-middle"><b>Май</b></td>
                                         {% for date, label in cal.may %}
-                                            <td>{{ date }}<br>{{ label }}</td>
+                                           {% if label == "Пр" %}
+                                                <td>
+                                                    <div class="badge text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-danger text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Праздник
+                                                    </div>
+                                                </td>
+                                            {% elif label == "8" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-info text-wrap align-middle vertical badge-pill" style="width: 31px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Полный рабочий день
+                                                    </div>
+                                                </td>
+                                            {% elif label == "7" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-warning text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Короткий рабочий день
+                                                    </div>
+                                                </td>
+                                            {% endif %}
                                         {% endfor %}
                                     </tr>
                                     <tr>
-                                        <td><b>Июнь</b></td>
+                                        <td class="align-middle"><b>Июнь</b></td>
                                         {% for date, label in cal.jun %}
-                                            <td>{{ date }}<br>{{ label }}</td>
+                                           {% if label == "Пр" %}
+                                                <td>
+                                                    <div class="badge text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-danger text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Праздник
+                                                    </div>
+                                                </td>
+                                            {% elif label == "8" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-info text-wrap align-middle vertical badge-pill" style="width: 31px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Полный рабочий день
+                                                    </div>
+                                                </td>
+                                            {% elif label == "7" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-warning text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Короткий рабочий день
+                                                    </div>
+                                                </td>
+                                            {% endif %}
                                         {% endfor %}
                                     </tr>
                                     <tr>
-                                        <td><b>Июль</b></td>
+                                        <td class="align-middle"><b>Июль</b></td>
                                         {% for date, label in cal.jul %}
-                                            <td>{{ date }}<br>{{ label }}</td>
+                                            {% if label == "Пр" %}
+                                                <td>
+                                                    <div class="badge text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-danger text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Праздник
+                                                    </div>
+                                                </td>
+                                            {% elif label == "8" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-info text-wrap align-middle vertical badge-pill" style="width: 31px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Полный рабочий день
+                                                    </div>
+                                                </td>
+                                            {% elif label == "7" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-warning text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Короткий рабочий день
+                                                    </div>
+                                                </td>
+                                            {% endif %}
                                         {% endfor %}
                                     </tr>
                                     <tr>
-                                        <td><b>Август</b></td>
+                                        <td class="align-middle"><b>Август</b></td>
                                         {% for date, label in cal.aug %}
-                                            <td>{{ date }}<br>{{ label }}</td>
+                                           {% if label == "Пр" %}
+                                                <td>
+                                                    <div class="badge text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-danger text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Праздник
+                                                    </div>
+                                                </td>
+                                            {% elif label == "8" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-info text-wrap align-middle vertical badge-pill" style="width: 31px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Полный рабочий день
+                                                    </div>
+                                                </td>
+                                            {% elif label == "7" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-warning text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Короткий рабочий день
+                                                    </div>
+                                                </td>
+                                            {% endif %}
                                         {% endfor %}
                                     </tr>
                                     <tr>
-                                        <td><b>Сентябрь</b></td>
+                                        <td class="align-middle"><b>Сентябрь</b></td>
                                         {% for date, label in cal.sep %}
-                                            <td>{{ date }}<br>{{ label }}</td>
+                                           {% if label == "Пр" %}
+                                                <td>
+                                                    <div class="badge text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-danger text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Праздник
+                                                    </div>
+                                                </td>
+                                            {% elif label == "8" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-info text-wrap align-middle vertical badge-pill" style="width: 31px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Полный рабочий день
+                                                    </div>
+                                                </td>
+                                            {% elif label == "7" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-warning text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Короткий рабочий день
+                                                    </div>
+                                                </td>
+                                            {% endif %}
                                         {% endfor %}
                                     </tr>
                                     <tr>
-                                        <td><b>Октябрь</b></td>
+                                        <td class="align-middle"><b>Октябрь</b></td>
                                         {% for date, label in cal.oct %}
-                                            <td>{{ date }}<br>{{ label }}</td>
+                                           {% if label == "Пр" %}
+                                                <td>
+                                                    <div class="badge text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-danger text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Праздник
+                                                    </div>
+                                                </td>
+                                            {% elif label == "8" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-info text-wrap align-middle vertical badge-pill" style="width: 31px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Полный рабочий день
+                                                    </div>
+                                                </td>
+                                            {% elif label == "7" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-warning text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Короткий рабочий день
+                                                    </div>
+                                                </td>
+                                            {% endif %}
                                         {% endfor %}
                                     </tr>
                                     <tr>
-                                        <td><b>Ноябрь</b></td>
+                                        <td class="align-middle"><b>Ноябрь</b></td>
                                         {% for date, label in cal.nov %}
-                                            <td>{{ date }}<br>{{ label }}</td>
+                                            {% if label == "Пр" %}
+                                                <td>
+                                                    <div class="badge text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-danger text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Праздник
+                                                    </div>
+                                                </td>
+                                            {% elif label == "8" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-info text-wrap align-middle vertical badge-pill" style="width: 31px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Полный рабочий день
+                                                    </div>
+                                                </td>
+                                            {% elif label == "7" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-warning text-wrap align-middle vertical badge-pill" style="width: 31px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Короткий рабочий день
+                                                    </div>
+                                                </td>
+                                            {% endif %}
                                         {% endfor %}
                                     </tr>
                                     <tr>
-                                        <td><b>Декабрь</b></td>
+                                        <td class="align-middle"><b>Декабрь</b></td>
                                         {% for date, label in cal.dec %}
-                                            <td>{{ date }}<br>{{ label }}</td>
+                                           {% if label == "Пр" %}
+                                                <td>
+                                                    <div class="badge text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-danger text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Праздник
+                                                    </div>
+                                                </td>
+                                            {% elif label == "8" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-info text-wrap align-middle vertical badge-pill" style="width: 31px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Полный рабочий день
+                                                    </div>
+                                                </td>
+                                            {% elif label == "7" %}
+                                                <td>
+                                                    <div class="badge  text-wrap align-middle vertical" style="width: 100px; height: 50px;">
+                                                        <div class="badge bg-warning text-wrap align-middle vertical badge-pill" style="width: 21px; height: 21px;">{{ date }}
+                                                        </div>
+                                                        Короткий рабочий день
+                                                    </div>
+                                                </td>
+                                            {% endif %}
                                         {% endfor %}
                                     </tr>
                                 </tbody>
