@@ -179,7 +179,7 @@ class Teacher(models.Model):
     Класс "Преподаватель" -- те сотрудники, которые являются действующими преполдавателями ТШ,
     которым необходимо взаимодействовать с системой. Ассоциативная сущность, соединяющая User и Worker.
     """
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Пользователь')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Пользователь_преподаватель')
     worker = models.ForeignKey(Worker, on_delete=models.CASCADE, verbose_name='Сотрудник')
     POSITIONS = [
         ('a', 'admin'),
@@ -319,6 +319,7 @@ class CourseType(models.Model):
 
 class Student(models.Model):
     """Модель "Студент". Объекты класса -- студенты ТШ."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Пользователь_студент', default='1')
     personal_info = models.ForeignKey(PersonalInfo, on_delete=models.CASCADE, verbose_name='Персональные данные студента')
     personnel_num = models.CharField('Табельный номер', max_length=6)
     EDU_STATUSES = [
@@ -331,6 +332,7 @@ class Student(models.Model):
         ('1', 'из персонала')
     ]
     from_staff = models.CharField('Из персонала', max_length=1, choices=STAFF, default='0')
+    list_display_links = None
 
     class Meta:
         verbose_name = 'Студент'

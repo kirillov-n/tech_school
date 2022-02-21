@@ -195,7 +195,7 @@ JAZZMIN_SETTINGS = {
             {"name": "Учебный план (таблица)", "url": "admin:trainingplan_view", "icon": "fas fa-box-open"},
             {"name": "Расчёт зарплаты", "url": "admin:salarycount_view", "icon": "fas fa-box-open"},
             {"name": "Расчёт стипендии", "url": "admin:scholarshipcount_view", "icon": "fas fa-box-open"},
-            {"name": "Производственный календарь (календарь)", "url": "admin:workingdates_view", "icon": "fas fa-box-open"},
+            {"name": "Производственный календарь (календарь)", "url": "admin:workingdates_view", "icon": "fas fa-calendar"},
         ],
         "survey_app": [
             {"name": "Результаты опросов", "url": "admin:surveyresults_view", "icon": "fas fa-poll-h"},
