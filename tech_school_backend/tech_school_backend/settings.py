@@ -44,11 +44,13 @@ INSTALLED_APPS = [
     'ejournal_app',
     'survey_app',
     'hours_app',
+    'dashboard_app',
     'djoser',
     'rest_framework',
     'corsheaders',
     'crispy_forms',
     'django_extensions',
+    'django_plotly_dash.apps.DjangoPlotlyDashConfig',
 ]
 
 MIDDLEWARE = [
@@ -75,6 +77,7 @@ TEMPLATES = [
             'planning_app/templates/',
             'survey_app/templates',
             'tech_school_app/templates',
+            'dashboard_app/templates',
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -184,6 +187,8 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('JWT',),
 }
 
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
 JAZZMIN_SETTINGS = {
     "custom_links": {
         "tech_school_app": [
@@ -200,8 +205,12 @@ JAZZMIN_SETTINGS = {
         "survey_app": [
             {"name": "Результаты опросов", "url": "admin:surveyresults_view", "icon": "fas fa-poll-h"},
         ]
-    }
+    },
+    "topmenu_links": [
+            {"name": "Дашборд", "url": "/dashboard/"},
+    ]
 }
+
 JAZZMIN_UI_TWEAKS = {
     "theme": "flatly",
     # "dark_mode_theme": "darkly",

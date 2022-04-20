@@ -28,4 +28,6 @@ urlpatterns = [
     path('ejournal/', include('ejournal_app.urls')),
     path('survey/', include('survey_app.urls')),
     path('hours/', include('hours_app.urls')),
+    path('dashboard/', include('dashboard_app.urls')),
+    path('django_plotly_dash/', include('django_plotly_dash.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

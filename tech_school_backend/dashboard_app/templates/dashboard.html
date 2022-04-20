@@ -1,0 +1,8 @@
+{% extends "admin/base.html" %}
+{%load plotly_dash%}
+{% block content %}
+    <div class="col-lg-12" ng-if="showME" style="padding:0px">
+   <div id="graphPlot" ng-bind-html="myHTML"></div>
+    {% plotly_app name="SimpleExample" ratio=1 %}
+</div>
+{% endblock %}
