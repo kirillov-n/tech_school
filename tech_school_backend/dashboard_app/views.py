@@ -7,12 +7,12 @@ from django.db.models import Avg, Count, Q, Sum
 from tech_school_app.models import *
 
 import dash
+from dash.dependencies import Input, Output
 import pandas as pd
 import plotly.express as px
 import dash_core_components as dcc
 import dash_html_components as html
 from django_plotly_dash import DjangoDash
-
 
 class DashboardView(TemplateView):
     """
@@ -24,29 +24,89 @@ class DashboardView(TemplateView):
 
     df = pd.read_csv(r"C:\Users\kiril\Desktop\pBNN\Data\result_table.csv", delimiter=";").copy()
 
+    df_people = df[['name', 'group']].groupby('group').count().rename(columns={"name": "people"}).reset_index()
+
+    fig = px.pie(df_people, values='people', names='group', title='Количество студентов в группах')
+
+    df_question1 = df[['name', 'stud_1']].groupby('stud_1').count().rename(columns={"name": "people"}).reset_index()
+
+    fig_1 = px.bar(df_question1, x='stud_1', y='people', title='Первый вопрос')
+
+    df_question2 = df[['name', 'stud_2']].groupby('stud_2').count().rename(columns={"name": "people"}).reset_index()
+
+    fig_2 = px.bar(df_question2, x='stud_2', y='people', title='Второй вопрос')
+
     external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-    app = DjangoDash('SimpleExample', external_stylesheets=external_stylesheets)
 
-    # assume you have a "long-form" data frame
-    # see https://plotly.com/python/px-arguments/ for more options
-    # df = pd.DataFrame({
-    #     "Fruit": ["Apples", "Oranges", "Bananas", "Apples", "Oranges", "Bananas"],
-    #     "Amount": [4, 1, 2, 2, 4, 5],
-    #     "City": ["SF", "SF", "SF", "Montreal", "Montreal", "Montreal"]
-    # })
+    app = DjangoDash('dashboard', external_stylesheets=external_stylesheets)
 
-    df_groups = df.groupby('group').count()
-    df_groups['group'] = df_groups.index
-    fig = px.pie(df_groups, values='name', names='group', title='Количество студентов в группах')
+    app.layout = html.Div(
+        children=[
+            html.Div(children='group', style={'fontSize': "24px"}, className='menu-title'),
+            dcc.Dropdown(
+                id='group-filter',
+                options=[
+                    {'label': group, 'value': group}
+                    for group in df.group.unique()
+                ],
+                value='M-227',
+                clearable=False,
+                searchable=False,
+                className='dropdown', style={'fontSize': "24px", 'textAlign': 'center'},
+            ),
 
-    app.layout = html.Div(children=[
-
-        dcc.Graph(
-            id='example-graph',
-            figure=fig
-        )
-    ],
-        style={
-            'position': 'static',
-        }
+            html.Div(
+                children=[
+                    html.Div(
+                        children=dcc.Graph(
+                            id='bar_1',
+                            figure=fig_1
+                        ), style={'width': '50%', 'display': 'inline-block'}
+                    ),
+                    html.Div(
+                        children=dcc.Graph(
+                            id='bar_2',
+                            figure=fig_2
+                        ), style={'width': '50%', 'display': 'inline-block'}
+                    )
+                ]
+            )
+        ]
     )
+
+
+    @app.callback(
+        Output("bar_1", "figure"),
+        [Input("group-filter", "value")],
+    )
+    def update_charts(group):
+        df = pd.read_csv(r"C:\Users\kiril\Desktop\pBNN\Data\result_table.csv", delimiter=";").copy()
+        filtered_data = df[df["group"] == group]
+        filtered_data = filtered_data[['name', 'stud_1']].groupby('stud_1').count().rename(columns={"name": "people"}).reset_index()
+
+        bar = px.bar(
+            filtered_data,
+            x='stud_1',
+            y='people',
+            title='Первый вопрос',
+        )
+        return bar
+
+    @app.callback(
+        Output("bar_2", "figure"),
+        [Input("group-filter", "value")],
+    )
+    def update_charts(group):
+        df = pd.read_csv(r"C:\Users\kiril\Desktop\pBNN\Data\result_table.csv", delimiter=";").copy()
+        filtered_data = df[df["group"] == group]
+        filtered_data = filtered_data[['name', 'stud_2']].groupby('stud_2').count().rename(
+            columns={"name": "people"}).reset_index()
+
+        bar = px.bar(
+            filtered_data,
+            x='stud_2',
+            y='people',
+            title='Второй вопрос',
+        )
+        return bar
+
