@@ -22,13 +22,13 @@ class EjournalView(TemplateView):
         context = super().get_context_data(**kwargs)
         context.update(site.each_context(self.request))
 
-        context["headings1"] = [ # таблица средних баллов
+        context["headings1"] = [  # таблица средних баллов
             'студент',
             'предмет',
             'средний балл',
         ]
 
-        context["headings2"] = [ # таблица посещаемости
+        context["headings2"] = [  # таблица посещаемости
             'студент',
             'предмет',
             'present',
@@ -36,7 +36,7 @@ class EjournalView(TemplateView):
             '% present',
         ]
 
-        context["headings3"] = [ # таблица totals
+        context["headings3"] = [  # таблица totals
             'студент',
             'часов посетил',
             'всего часов',
@@ -48,47 +48,51 @@ class EjournalView(TemplateView):
         # получаем от пользователя
         date = self.request.GET.get("date")
         group = self.request.GET.get("group")
-    
-        groups = Group.objects.all() # все группы 
+
+        groups = Group.objects.all()  # все группы
         context["groups"] = groups
 
-        queryset = Grade.objects.all() # queryset: все оценки
+        queryset = Grade.objects.all()  # queryset: все оценки
 
         # информация отображается только если выбрана группа и дата
         if group and date:
-            year, month, _ = date.split('-') # год и месяц
-            queryset = queryset.filter(class_id__when__year=year, class_id__when__month=month, class_id__group__id=group)
-            
-            classes = Class.objects.filter(group__id=group, when__year=year, when__month=month) # занятия группы
-            total_hours = classes.aggregate(total=Sum('hours'))["total"] # сколько всего часов занятий у группы в указанный период
+            year, month, _ = date.split('-')  # год и месяц
+            queryset = queryset.filter(class_id__when__year=year, class_id__when__month=month,
+                                       class_id__group__id=group)
 
-            grades_queryset = queryset.filter(grade_type="g") # только оценки
-            attendance_queryset = queryset.filter(grade_type="a") # только посещения
+            classes = Class.objects.filter(group__id=group, when__year=year, when__month=month)  # занятия группы
+            total_hours = classes.aggregate(total=Sum('hours'))[
+                "total"]  # сколько всего часов занятий у группы в указанный период
+
+            grades_queryset = queryset.filter(grade_type="g")  # только оценки
+            attendance_queryset = queryset.filter(grade_type="a")  # только посещения
 
             # средние баллы по каждому предмету для каждого студента (складываются из всех оценок за период)
             avg_grades = grades_queryset.values('class_id__subject', 'student').order_by().annotate(Avg('grade'))
-            
+
             # % посещаемости по каждому предмету для каждого студента без учёта длительности занятий, только соотношение отметок "present" и "absent"
             present_count = Count('grade', filter=Q(attendance='1'))
             absent_count = Count('grade', filter=Q(attendance='0'))
-            avg_attendance = attendance_queryset.values('class_id__subject', 'student').order_by().annotate(present=present_count).annotate(absent=absent_count)
+            avg_attendance = attendance_queryset.values('class_id__subject', 'student').order_by().annotate(
+                present=present_count).annotate(absent=absent_count)
 
-            avg = [] # приведение средних баллов к наглядному виду, который можно вывести в таблице
+            avg = []  # приведение средних баллов к наглядному виду, который можно вывести в таблице
             for row in avg_grades:
                 _row = {}
                 _row["student"] = Student.objects.get(pk=row['student'])
                 _row["subject"] = Subject.objects.get(pk=row['class_id__subject'])
-                _row["avg_point"] = round(row['grade__avg'], 2) # округление до сотых
+                _row["avg_point"] = round(row['grade__avg'], 2)  # округление до сотых
                 avg.append(_row)
 
-            att = [] #приведение посещаемости к наглядному виду, который можно вывести в таблице
+            att = []  # приведение посещаемости к наглядному виду, который можно вывести в таблице
             for row in avg_attendance:
                 _row = {}
                 _row["student"] = Student.objects.get(pk=row['student'])
                 _row["subject"] = Subject.objects.get(pk=row['class_id__subject'])
                 _row["present"] = row['present']
                 _row["absent"] = row['absent']
-                _row["percent"] = round(row['present'] / (row['present'] + row['absent']), 2) # получение и округление процента
+                _row["percent"] = round(row['present'] / (row['present'] + row['absent']),
+                                        2)  # получение и округление процента
                 att.append(_row)
 
             totals = {}
@@ -98,7 +102,7 @@ class EjournalView(TemplateView):
                     totals[row.student.pk] = {}
                     totals[row.student.pk]["data"] = {"avgs": []}
                     totals[row.student.pk]["student"] = row.student
-            
+
             for row in avg:
                 key = row["student"].id
                 totals[key]["data"]["avgs"].append(row["avg_point"])
@@ -106,14 +110,16 @@ class EjournalView(TemplateView):
             for key in totals.keys():
                 _student = totals[key]["student"]
                 _attendance = attendance_queryset.filter(student=_student.id).values('class_id__hours', 'attendance')
-                _present = sum([i["class_id__hours"] * int(i["attendance"]) for i in _attendance]) # посетил в часах
-                _percent = round( _present / total_hours, 2 ) if total_hours != 0 else None # % от общего числа часов
+                _present = sum([i["class_id__hours"] * int(i["attendance"]) for i in _attendance])  # посетил в часах
+                _percent = round(_present / total_hours, 2) if total_hours != 0 else None  # % от общего числа часов
                 totals[key]["data"]["present"] = _present
                 totals[key]["data"]["percent"] = _percent
 
             # получение итоговой средней оценки по всем средним баллам
             for key in totals.keys():
-                totals[key]["data"]["total_avg"] = round(sum(totals[key]["data"]["avgs"]) / len(totals[key]["data"]["avgs"]), 2) if totals[key]["data"]["avgs"] else None
+                totals[key]["data"]["total_avg"] = round(
+                    sum(totals[key]["data"]["avgs"]) / len(totals[key]["data"]["avgs"]), 2) if totals[key]["data"][
+                    "avgs"] else None
 
             totals_data = []
             for key in totals.keys():
@@ -140,7 +146,7 @@ class ClassesView(TemplateView):
         ctype (int) -- тип занятия (pk)
     Помимо базовой информации о каждом занятии, получает список студентов и оценки, проставленные за занятие.
     """
-    template_name="classes.html"
+    template_name = "classes.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -153,19 +159,19 @@ class ClassesView(TemplateView):
         dfrom = self.request.GET.get("dfrom")
         dto = self.request.GET.get("dto")
 
-        groups = Group.objects.filter(status='1') # все активные группы
+        groups = Group.objects.filter(status='1')  # все активные группы
         context["groups"] = groups
 
-        teachers = Teacher.objects.filter(is_active='1') # все активные преподаватели
+        teachers = Teacher.objects.filter(is_active='1')  # все активные преподаватели
         context["teachers"] = teachers
 
-        ctypes = ClassType.objects.all() # все типы занятий
+        ctypes = ClassType.objects.all()  # все типы занятий
         context["ctypes"] = ctypes
         ctype = self.request.GET.get("ctype")
 
         queryset = Class.objects.all()
 
-        if date: # точная дата занятий
+        if date:  # точная дата занятий
             year, month, day = date.split('-')
             queryset = queryset.filter(when__date__year=year, when__date__month=month, when__date__day=day)
 
@@ -174,13 +180,13 @@ class ClassesView(TemplateView):
 
         if teacher:
             queryset = queryset.filter(teacher__id=teacher)
-        
+
         if ctype:
             queryset = queryset.filter(class_type=ctype)
 
         if dfrom:
             queryset = queryset.filter(when__date__gte=dfrom)
-        
+
         if dto:
             queryset = queryset.filter(when__date__lte=dto)
 
@@ -199,11 +205,11 @@ class ClassesView(TemplateView):
                 grades = Grade.objects.filter(grade_type='g', student=member.student, class_id=_class)
                 _row["members"].append({"member": member.student,
                                         "grades": [g.grade for g in grades] if grades else 'Нет оценок.',
-                                        "attendance": getattr(attendance[0], 'get_attendance_display') if attendance else 'Нужно отметить посещение!'})
+                                        "attendance": getattr(attendance[0],
+                                                              'get_attendance_display') if attendance else 'Нужно отметить посещение!'})
             classes.append(_row)
 
         context['classes'] = classes
-        #context['user'] = user
+        # context['user'] = user
 
         return context
-
