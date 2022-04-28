@@ -9,6 +9,7 @@ from tech_school_app.models import *
 import dash
 from dash.dependencies import Input, Output
 import pandas as pd
+import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import dash_core_components as dcc
@@ -20,12 +21,17 @@ groups = Group.objects.all().values()
 membership = Membership.objects.all().values()
 incp = InCP.objects.all().values()
 calplan = CalendarPlan.objects.all().values()
+personalinfo = PersonalInfo.objects.all().values()
+students = Student.objects.all().values()
 
 df_grades = pd.DataFrame(queryset)
 df_groups = pd.DataFrame(groups)
 df_membership = pd.DataFrame(membership)
 df_incp = pd.DataFrame(incp)
 df_calplan = pd.DataFrame(calplan)
+df_personalinfo = pd.DataFrame(personalinfo)
+df_personalinfo['FullName'] = df_personalinfo['surname'] + ' ' + df_personalinfo['name'] + ' ' + df_personalinfo['patronymic']
+df_students = pd.DataFrame(students)
 
 df = pd.merge(df_grades[['grade_type', 'grade', 'attendance', 'student_id']], df_membership[['group_id', 'student_id']],
               left_on='student_id', right_on='student_id')
@@ -33,9 +39,11 @@ df = pd.merge(df, df_groups[['id', 'name', 'program_id']], left_on='group_id', r
 df_ = pd.merge(df_incp[['calendarplan_id', 'program_id']], df_calplan[['id', 'year']], left_on='calendarplan_id',
                right_on='id')
 df = pd.merge(df, df_, left_on='program_id', right_on='program_id')
+df = pd.merge(df, df_students[['id', 'personal_info_id']], left_on='student_id', right_on='id')
+df = pd.merge(df, df_personalinfo[['id', 'FullName']], left_on='personal_info_id', right_on='id')
 
 
-def generate_table(dataframe, max_rows=10):
+def generate_table(dataframe, max_rows=20):
     return html.Table(
         # Header
         [html.Tr([html.Th(col) for col in dataframe.columns])] +
@@ -48,8 +56,7 @@ def generate_table(dataframe, max_rows=10):
 
 
 fig_grades = px.bar(df[df["grade_type"] == 'g'], x='grade', y='student_id', title='Оценки')
-pie_attendance = px.pie(df[df["grade_type"] == 'a'], names='attendance', title="Процент посещений")
-# attendance = len(df[df["grade_type"] == 'a']["attendance"]) * pd.to_numeric(df[df["grade_type"] == 'a']["attendance"]).sum() / 100
+pie_attendance = px.pie(df[df["grade_type"] == 'a'], names="attendance", title="Процент посещений", hole=0.5)
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -119,9 +126,11 @@ def update_charts(group):
         filtered_data,
         x='grade',
         y='student_id',
+        color = 'FullName',
         title='Оценки',
     )
     return bar
+
 
 @app.callback(
     Output("pie_attendance", "figure"),
@@ -130,18 +139,16 @@ def update_charts(group):
 def update_charts(group):
     filtered_data = df[df["group_id"] == group]
     filtered_data = filtered_data[filtered_data["grade_type"] == 'a']
+    filtered_data['attendance_viz'] = np.where(filtered_data['attendance'] == '0', 'Пропустил', 'Посетил')
 
     bar = px.pie(
         filtered_data,
-        names='attendance',
+        names='attendance_viz',
         title="Процент посещений",
+        hole=0.5,
+        labels={'attendance_viz': 'Посещение'}
     )
     return bar
-def update_value(group):
-    filtered_data = df[df["group_id"] == group]
-    group_attendance = len(filtered_data[filtered_data["grade_type"] == 'a']["attendance"]) * pd.to_numeric(filtered_data[filtered_data["grade_type"] == 'a']["attendance"]).sum() / 100
-
-    return group_attendance
 
 
 class DashboardView(TemplateView):
