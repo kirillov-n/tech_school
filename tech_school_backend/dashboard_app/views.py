@@ -39,7 +39,7 @@ df = pd.merge(df, df_groups[['id', 'name', 'program_id']], left_on='group_id', r
 df_ = pd.merge(df_incp[['calendarplan_id', 'program_id']], df_calplan[['id', 'year']], left_on='calendarplan_id',
                right_on='id')
 df = pd.merge(df, df_, left_on='program_id', right_on='program_id')
-df = pd.merge(df, df_students[['id', 'personal_info_id']], left_on='student_id', right_on='id')
+df = pd.merge(df, df_students[['id', 'personal_info_id', 'personnel_num']], left_on='student_id', right_on='id')
 df = pd.merge(df, df_personalinfo[['id', 'FullName']], left_on='personal_info_id', right_on='id')
 
 
@@ -126,7 +126,13 @@ def update_charts(group):
         filtered_data,
         x='grade',
         y='student_id',
-        color = 'FullName',
+        color='FullName',
+        hover_data=['personnel_num'],
+        orientation='v',
+        labels={'FullName': 'ФИО студента',
+                'grade': 'Оценка',
+                'student_id': 'ID студента',
+                'personnel_num': 'Табельный номер'},
         title='Оценки',
     )
     return bar
@@ -139,14 +145,14 @@ def update_charts(group):
 def update_charts(group):
     filtered_data = df[df["group_id"] == group]
     filtered_data = filtered_data[filtered_data["grade_type"] == 'a']
-    filtered_data['attendance_viz'] = np.where(filtered_data['attendance'] == '0', 'Пропустил', 'Посетил')
+    filtered_data['attendance_viz'] = np.where(filtered_data['attendance'] == '0', 'Пропуск', 'Посещение')
 
     bar = px.pie(
         filtered_data,
         names='attendance_viz',
         title="Процент посещений",
         hole=0.5,
-        labels={'attendance_viz': 'Посещение'}
+        labels={'attendance_viz': 'Статус'}
     )
     return bar
 

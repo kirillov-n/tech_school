@@ -30,11 +30,12 @@ class HoursView(TemplateView):
             'рабочие часы',
             'всего'
         ]
-        
-        groups = Group.objects.all() # все группы
+
+        groups = Group.objects.all()  # все группы
         context["groups"] = groups
 
-        queryset = TrainingHours.objects.all().order_by("teacher") # queryset: все объекты таблицы "учёт часов", упорядоченные по преподавателю
+        queryset = TrainingHours.objects.all().order_by(
+            "teacher")  # queryset: все объекты таблицы "учёт часов", упорядоченные по преподавателю
 
         if date:
             year, month, _ = date.split('-')
@@ -52,12 +53,12 @@ class HoursView(TemplateView):
                 teachers_group[row.teacher.pk] = {}
                 teachers_group[row.teacher.pk]["data"] = []
                 teachers_group[row.teacher.pk]["teacher"] = row.teacher
-            
+
             teachers_group[row.teacher.pk]["data"].append(row)
 
         for key in teachers_group.keys():
             row = teachers_group[key]
-            
+
             teachers_group[key]["sum_working"] = 0
             teachers_group[key]["sum_personal"] = 0
             teachers_group[key]["sum_total"] = 0
@@ -68,7 +69,7 @@ class HoursView(TemplateView):
                     teachers_group[key]["sum_working"] += _row.hours
                 elif _row.time_type == 'p':
                     teachers_group[key]["sum_personal"] += _row.hours
-        
+
         teachers_groups = []
 
         for key in teachers_group.keys():
@@ -109,13 +110,13 @@ class HoursYearView(TemplateView):
 
         date = self.request.GET.get("date")
 
-        queryset = TrainingHours.objects.all().order_by("teacher") # queryset: все объекты таблицы "учёт часов", упорядоченные по преподавателю
+        queryset = TrainingHours.objects.all().order_by(
+            "teacher")  # queryset: все объекты таблицы "учёт часов", упорядоченные по преподавателю
 
         if date:
             year, _, _ = date.split('-')
             queryset = queryset.filter(date__year=year)
             context['year'] = year
-        
 
         # расчёт трёх сумм часов (всего, рабочее время, личное время) по каждому преподавателю
 
@@ -127,8 +128,8 @@ class HoursYearView(TemplateView):
             _row['teacher'] = Teacher.objects.get(pk=teacher_id)
             teacher_queryset = queryset.filter(teacher__id=teacher_id)
 
-            th_working = teacher_queryset.filter(time_type='w') # записи в рабочее время
-            th_personal = teacher_queryset.filter(time_type='p') # записи в личное время
+            th_working = teacher_queryset.filter(time_type='w')  # записи в рабочее время
+            th_personal = teacher_queryset.filter(time_type='p')  # записи в личное время
 
             sum_working = th_working.aggregate(Sum('hours'))["hours__sum"]
             sum_personal = th_personal.aggregate(Sum('hours'))["hours__sum"]
@@ -137,7 +138,7 @@ class HoursYearView(TemplateView):
                 sum_working = 0
             if not sum_personal:
                 sum_personal = 0
-            
+
             sum_total = sum_working + sum_personal
 
             _row['sum_working'] = sum_working
@@ -146,5 +147,5 @@ class HoursYearView(TemplateView):
             data.append(_row)
 
         context["data"] = data
-
+        context["queryset"] = queryset
         return context

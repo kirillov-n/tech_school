@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'survey_app',
     'hours_app',
     'dashboard_app',
+    'export',
     'djoser',
     'rest_framework',
     'corsheaders',

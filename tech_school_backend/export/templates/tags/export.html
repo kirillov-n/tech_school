@@ -1,0 +1,9 @@
+<div class="export-button">
+    <form target="_blank" action="{{ MODEL_URL }}" method="post">{% csrf_token %}
+        {% for ID in SELECTED %}
+            <input type="hidden" name="_selected_action" value="{{ ID }}">
+        {% endfor %}
+        <input type="hidden" name="action" value="export" />
+        <input type="submit" name="submit" value="Экспорт">
+    </form>
+</div>

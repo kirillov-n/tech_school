@@ -1,4 +1,5 @@
 {% extends "admin/base.html" %}
+{% load export %}
 {% block content %}
     <div class="col-12">
         <p class="h1">Учёт часов (год)</p>
@@ -35,7 +36,8 @@
                         </tr>
                         {% endfor %}
                     </tbody>
-                  </table>
+                </table>
+                {% export queryset %}
             </div>
         </div>
     </div>

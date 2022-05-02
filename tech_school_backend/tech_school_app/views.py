@@ -162,16 +162,3 @@ class WorkingDatesView(TemplateView):
         return context
 
 
-"""
-if the view shoud be closed:
-
-    permission_classes = (IsTeacher, IsAdmin)
-
-    def get_queryset(self):
-        user = self.request.user
-        
-        if user.is_authenticated:
-            return Executor.objects.filter(user=user)
-        
-        raise PermissionDenied()
-"""
