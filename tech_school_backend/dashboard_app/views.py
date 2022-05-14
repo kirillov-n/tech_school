@@ -15,6 +15,7 @@ import plotly.graph_objects as go
 import dash_core_components as dcc
 import dash_html_components as html
 from django_plotly_dash import DjangoDash
+from datetime import date
 
 grades = Grade.objects.all().values()
 groups = Group.objects.all().values()
@@ -23,25 +24,32 @@ incp = InCP.objects.all().values()
 calplan = CalendarPlan.objects.all().values()
 personalinfo = PersonalInfo.objects.all().values()
 students = Student.objects.all().values()
+_class = Class.objects.all().values()
 
 df_grades = pd.DataFrame(grades)
 df_groups = pd.DataFrame(groups)
 df_membership = pd.DataFrame(membership)
 df_incp = pd.DataFrame(incp)
 df_calplan = pd.DataFrame(calplan)
+df_class = pd.DataFrame(_class)
+
 df_personalinfo = pd.DataFrame(personalinfo)
-df_personalinfo['FullName'] = df_personalinfo['surname'] + ' ' + df_personalinfo['name'] + ' ' + df_personalinfo['patronymic']
+df_personalinfo['FullName'] = df_personalinfo['surname'] + ' ' + df_personalinfo['name'] + ' ' + df_personalinfo[
+    'patronymic']
 df_students = pd.DataFrame(students)
 
-df = pd.merge(df_grades[['grade_type', 'grade', 'attendance', 'student_id']], df_membership[['group_id', 'student_id']],
+df = pd.merge(df_grades[['grade_type', 'grade', 'attendance', 'student_id', 'class_id_id']],
+              df_membership[['group_id', 'student_id']],
               left_on='student_id', right_on='student_id')
+df = pd.merge(df, df_class[['id', 'when']], left_on='class_id_id', right_on='id')
 df = pd.merge(df, df_groups[['id', 'name', 'program_id']], left_on='group_id', right_on='id')
-df_ = pd.merge(df_incp[['calendarplan_id', 'program_id']], df_calplan[['id', 'year']], left_on='calendarplan_id',
-               right_on='id')
-df = pd.merge(df, df_, left_on='program_id', right_on='program_id')
 df = pd.merge(df, df_students[['id', 'personal_info_id', 'personnel_num']], left_on='student_id', right_on='id')
 df = pd.merge(df, df_personalinfo[['id', 'FullName']], left_on='personal_info_id', right_on='id')
 
+df['when'] = pd.to_datetime(df['when']).dt.strftime('%d/%m/%Y')
+# df['month'] = df['when'].dt.strftime('%m')
+# df['year'] = df['when'].dt.strftime('%Y')
+# df['day'] = df['when'].dt.strftime('%d')
 
 def generate_table(dataframe, max_rows=20):
     return html.Table(
@@ -64,20 +72,34 @@ app = DjangoDash('dashboard', external_stylesheets=external_stylesheets)
 
 app.layout = html.Div(
     children=[
-        html.Div(children='year', style={'fontSize': "24px"}, className='menu-title'),
-        dcc.Dropdown(
-            id='year-filter',
-            options=[
-                {'label': year, 'value': year}
-                for year in df.year.unique()
-            ],
-            className='dropdown'
-        ),
+        # html.Div(children='year', style={'fontSize': "24px"}, className='menu-title'),
+        # dcc.Dropdown(
+        #     id='year-filter',
+        #     options=[
+        #         {'label': year, 'value': year}
+        #         for year in df.year.unique()
+        #     ],
+        #     className='dropdown'
+        # ),
         html.Div(children='group', style={'fontSize': "24px"}, className='menu-title'),
         dcc.Dropdown(
             id='group-filter',
+            options=[
+                {'label': group_name, 'value': group}
+                for group in df.group_id.unique()
+                for group_name in df[df['group_id'] == group].name.unique()
+            ],
             className='dropdown'
         ),
+        dcc.DatePickerRange(
+            id='my-date-picker-range',
+            display_format='M/D/Y',
+            start_date_placeholder_text='М/Д/Г',
+            end_date_placeholder_text='М/Д/Г',
+            start_date=date(2022, 1, 1),
+            end_date=date(2022, 1, 1),
+        ),
+        html.Div(id='output-container-date-picker-range'),
         html.Div(
             children=[
                 html.Div(
@@ -102,26 +124,19 @@ app.layout = html.Div(
 
 
 @app.callback(
-    [Output("group-filter", "options")],
-    [Input("year-filter", "value")]
-)
-def update_options(value):
-    options = [
-                  {'label': group_name, 'value': group}
-                  for group in df[df['year'] == value].group_id.unique()
-                  for group_name in df[df['group_id'] == group].name.unique()
-              ],
-    return options
-
-
-@app.callback(
     Output("bar_1", "figure"),
-    [Input("group-filter", "value")],
-)
-def update_charts(group):
-    filtered_data = df[df["group_id"] == group]
-    filtered_data = filtered_data[filtered_data["grade_type"] == 'g']
+    Input('my-date-picker-range', 'start_date'),
+    Input('my-date-picker-range', 'end_date'),
+    Input("group-filter", "value"))
+def update_charts(start_date, end_date, value):
+    start_date_object = date.fromisoformat(start_date)
+    start_date_string = start_date_object.strftime('%d/%m/%Y')
+    end_date_object = date.fromisoformat(end_date)
+    end_date_string = end_date_object.strftime('%d/%m/%Y')
 
+    filtered_data = df[df["group_id"] == value]
+    filtered_data = filtered_data[filtered_data["grade_type"] == 'g']
+    filtered_data = filtered_data[(filtered_data["when"] > start_date_string) & (filtered_data['when'] < end_date_string)]
     bar = px.bar(
         filtered_data,
         x='grade',
