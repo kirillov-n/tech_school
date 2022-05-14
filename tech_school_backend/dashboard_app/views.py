@@ -16,7 +16,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 from django_plotly_dash import DjangoDash
 
-queryset = Grade.objects.all().values()
+grades = Grade.objects.all().values()
 groups = Group.objects.all().values()
 membership = Membership.objects.all().values()
 incp = InCP.objects.all().values()
@@ -24,7 +24,7 @@ calplan = CalendarPlan.objects.all().values()
 personalinfo = PersonalInfo.objects.all().values()
 students = Student.objects.all().values()
 
-df_grades = pd.DataFrame(queryset)
+df_grades = pd.DataFrame(grades)
 df_groups = pd.DataFrame(groups)
 df_membership = pd.DataFrame(membership)
 df_incp = pd.DataFrame(incp)
