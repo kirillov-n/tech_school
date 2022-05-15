@@ -6,7 +6,7 @@ from django.contrib.admin.sites import site
 from django.db.models import Avg, Count, Q, Sum
 from tech_school_app.models import *
 
-import dash
+import dash_table
 from dash.dependencies import Input, Output
 import pandas as pd
 import numpy as np
@@ -47,9 +47,10 @@ df = pd.merge(df, df_students[['id', 'personal_info_id', 'personnel_num']], left
 df = pd.merge(df, df_personalinfo[['id', 'FullName']], left_on='personal_info_id', right_on='id')
 
 df['when'] = pd.to_datetime(df['when']).dt.strftime('%d/%m/%Y')
-# df['month'] = df['when'].dt.strftime('%m')
-# df['year'] = df['when'].dt.strftime('%Y')
-# df['day'] = df['when'].dt.strftime('%d')
+
+students_list = df[['personnel_num', 'group_id', 'FullName']].drop_duplicates(subset=['personnel_num'])
+students_list = students_list.rename(columns={"personnel_num": "Табельный номер", "FullName": "ФИО"})
+
 
 def generate_table(dataframe, max_rows=20):
     return html.Table(
@@ -72,52 +73,66 @@ app = DjangoDash('dashboard', external_stylesheets=external_stylesheets)
 
 app.layout = html.Div(
     children=[
-        # html.Div(children='year', style={'fontSize': "24px"}, className='menu-title'),
-        # dcc.Dropdown(
-        #     id='year-filter',
-        #     options=[
-        #         {'label': year, 'value': year}
-        #         for year in df.year.unique()
-        #     ],
-        #     className='dropdown'
+        html.Div(children='Выберите группу', style={'display': 'block','fontSize': "24px"}, className='menu-title'),
+        html.Div(
+            dcc.Dropdown(
+                id='group-filter',
+                options=[
+                    {'label': group_name, 'value': group}
+                    for group in df.group_id.unique()
+                    for group_name in df[df['group_id'] == group].name.unique()
+                ],
+                className='dropdown'
+            ), style={'width': '100%', 'display': 'block'}),
+        html.Div(
+            dcc.DatePickerRange(
+                id='my-date-picker-range',
+                display_format='M/D/Y',
+                start_date_placeholder_text='Начальная дата',
+                end_date_placeholder_text='Конечная дата',
+                start_date=date.today(),
+                end_date=date.today(),
+            ), style={'display': 'block'}),
+        html.Div(id='output-container-date-picker-range', style={'width': '100%', 'display': 'block'}),
+        # html.Div(
+        #     dash_table.DataTable(
+        #         id='table',
+        #         columns=[{"name": i, "id": i} for i in students_list[['Табельный номер', 'ФИО']]],
+        #         data=students_list.to_dict('records'),
+        #         style_cell_conditional=[
+        #             {
+        #                 'textAlign': 'left',
+        #             }
+        #         ],
+        #     ), style={'width': '50%', 'display': 'inline-block'}
         # ),
-        html.Div(children='group', style={'fontSize': "24px"}, className='menu-title'),
-        dcc.Dropdown(
-            id='group-filter',
-            options=[
-                {'label': group_name, 'value': group}
-                for group in df.group_id.unique()
-                for group_name in df[df['group_id'] == group].name.unique()
-            ],
-            className='dropdown'
+        html.Div(
+            dash_table.DataTable(
+                id='table',
+                columns=[{"name": i, "id": i} for i in students_list[['Табельный номер', 'ФИО']]],
+                data=students_list.to_dict('records'),
+                style_cell_conditional=[
+                    {
+                        'textAlign': 'left',
+                    }
+                ],
+            ), style={'width': '50%', 'display': 'inline-block', 'vertical-align': 'top'}
         ),
-        dcc.DatePickerRange(
-            id='my-date-picker-range',
-            display_format='M/D/Y',
-            start_date_placeholder_text='М/Д/Г',
-            end_date_placeholder_text='М/Д/Г',
-            start_date=date(2022, 1, 1),
-            end_date=date(2022, 1, 1),
-        ),
-        html.Div(id='output-container-date-picker-range'),
         html.Div(
             children=[
                 html.Div(
                     children=dcc.Graph(
                         id='bar_1',
                         figure=fig_grades
-                    ), style={'width': '50%', 'display': 'inline-block'}
+                    ), style={'display': 'block'}
                 ),
                 html.Div(
                     children=dcc.Graph(
                         id='pie_attendance',
                         figure=pie_attendance
-                    ), style={'width': '50%', 'display': 'inline-block'}
-                ),
-                html.Div(
-                    children=generate_table(df)
+                    ), style={'display': 'block'}
                 )
-            ]
+            ], style={'width': '50%', 'display': 'inline-block'}
         )
     ]
 )
@@ -136,7 +151,8 @@ def update_charts(start_date, end_date, value):
 
     filtered_data = df[df["group_id"] == value]
     filtered_data = filtered_data[filtered_data["grade_type"] == 'g']
-    filtered_data = filtered_data[(filtered_data["when"] > start_date_string) & (filtered_data['when'] < end_date_string)]
+    filtered_data = filtered_data[
+        (filtered_data["when"] > start_date_string) & (filtered_data['when'] < end_date_string)]
     bar = px.bar(
         filtered_data,
         x='grade',
@@ -155,11 +171,19 @@ def update_charts(start_date, end_date, value):
 
 @app.callback(
     Output("pie_attendance", "figure"),
-    [Input("group-filter", "value")],
-)
-def update_charts(group):
-    filtered_data = df[df["group_id"] == group]
+    Input('my-date-picker-range', 'start_date'),
+    Input('my-date-picker-range', 'end_date'),
+    Input("group-filter", "value"))
+def update_charts(start_date, end_date, value):
+    start_date_object = date.fromisoformat(start_date)
+    start_date_string = start_date_object.strftime('%d/%m/%Y')
+    end_date_object = date.fromisoformat(end_date)
+    end_date_string = end_date_object.strftime('%d/%m/%Y')
+
+    filtered_data = df[df["group_id"] == value]
     filtered_data = filtered_data[filtered_data["grade_type"] == 'a']
+    filtered_data = filtered_data[
+        (filtered_data["when"] > start_date_string) & (filtered_data['when'] < end_date_string)]
     filtered_data['attendance_viz'] = np.where(filtered_data['attendance'] == '0', 'Пропуск', 'Посещение')
 
     bar = px.pie(
@@ -170,6 +194,14 @@ def update_charts(group):
         labels={'attendance_viz': 'Статус'}
     )
     return bar
+
+
+@app.callback(
+    Output("table", "data"),
+    Input("group-filter", "value"))
+def update_graphs(value):
+    filtered_data = students_list[students_list["group_id"] == value]
+    return filtered_data.to_dict('records')
 
 
 class DashboardView(TemplateView):
