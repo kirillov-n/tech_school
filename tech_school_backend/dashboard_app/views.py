@@ -46,23 +46,10 @@ df = pd.merge(df, df_groups[['id', 'name', 'program_id']], left_on='group_id', r
 df = pd.merge(df, df_students[['id', 'personal_info_id', 'personnel_num']], left_on='student_id', right_on='id')
 df = pd.merge(df, df_personalinfo[['id', 'FullName']], left_on='personal_info_id', right_on='id')
 
-df['when'] = pd.to_datetime(df['when']).dt.strftime('%d/%m/%Y')
-
+df['when'] = pd.to_datetime(df['when']).dt.date
+print(df['when'])
 students_list = df[['personnel_num', 'group_id', 'FullName']].drop_duplicates(subset=['personnel_num'])
 students_list = students_list.rename(columns={"personnel_num": "Табельный номер", "FullName": "ФИО"})
-
-
-def generate_table(dataframe, max_rows=20):
-    return html.Table(
-        # Header
-        [html.Tr([html.Th(col) for col in dataframe.columns])] +
-
-        # Body
-        [html.Tr([
-            html.Td(dataframe.iloc[i][col]) for col in dataframe.columns
-        ]) for i in range(min(len(dataframe), max_rows))]
-    )
-
 
 fig_grades = px.bar(df[df["grade_type"] == 'g'], x='grade', y='student_id', title='Оценки')
 pie_attendance = px.pie(df[df["grade_type"] == 'a'], names="attendance", title="Процент посещений", hole=0.5)
@@ -73,7 +60,9 @@ app = DjangoDash('dashboard', external_stylesheets=external_stylesheets)
 
 app.layout = html.Div(
     children=[
-        html.Div(children='Выберите группу', style={'display': 'block','fontSize': "24px"}, className='menu-title'),
+        html.Div(children='Выберите группу',
+                 style={'display': 'block', 'fontSize': "24px", 'margin-bottom': '5px', 'margin-top': '0px', 'color': 'rgb(42, 63, 95)'},
+                 className='menu-title'),
         html.Div(
             dcc.Dropdown(
                 id='group-filter',
@@ -82,30 +71,21 @@ app.layout = html.Div(
                     for group in df.group_id.unique()
                     for group_name in df[df['group_id'] == group].name.unique()
                 ],
-                className='dropdown'
-            ), style={'width': '100%', 'display': 'block'}),
+                className='dropdown',
+                placeholder='Группа',
+            ), style={'width': '100%', 'display': 'block', 'margin-bottom': '5px', 'vertical-align': 'top'}),
         html.Div(
             dcc.DatePickerRange(
                 id='my-date-picker-range',
-                display_format='M/D/Y',
+                display_format='DD.MM.YYYY',
                 start_date_placeholder_text='Начальная дата',
                 end_date_placeholder_text='Конечная дата',
                 start_date=date.today(),
                 end_date=date.today(),
-            ), style={'display': 'block'}),
-        html.Div(id='output-container-date-picker-range', style={'width': '100%', 'display': 'block'}),
-        # html.Div(
-        #     dash_table.DataTable(
-        #         id='table',
-        #         columns=[{"name": i, "id": i} for i in students_list[['Табельный номер', 'ФИО']]],
-        #         data=students_list.to_dict('records'),
-        #         style_cell_conditional=[
-        #             {
-        #                 'textAlign': 'left',
-        #             }
-        #         ],
-        #     ), style={'width': '50%', 'display': 'inline-block'}
-        # ),
+                first_day_of_week=1,
+                show_outside_days=True,
+                number_of_months_shown=2,
+            ), style={'width': '100%', 'display': 'block', 'margin-bottom': '5px', 'vertical-align': 'top'}),
         html.Div(
             dash_table.DataTable(
                 id='table',
@@ -116,7 +96,23 @@ app.layout = html.Div(
                         'textAlign': 'left',
                     }
                 ],
-            ), style={'width': '50%', 'display': 'inline-block', 'vertical-align': 'top'}
+                style_table={
+                    'border': '1px solid white',
+                    'borderRadius': '10px',
+                    'overflow': 'hidden'
+                },
+                style_header={
+                    'border': '1px solid white',
+                    'backgroundColor': 'rgb(75, 113, 171)',
+                    'color': 'rgb(19, 29, 44)',
+                    'fontWeight': 'bold'
+                },
+                style_data={
+                    'border': '1px solid white',
+                    'color': 'rgb(42, 63, 95)',
+                    'backgroundColor': 'rgb(229, 236, 246)'
+                },
+            ), style={'width': '30%', 'display': 'inline-block', 'vertical-align': 'top'}
         ),
         html.Div(
             children=[
@@ -132,7 +128,7 @@ app.layout = html.Div(
                         figure=pie_attendance
                     ), style={'display': 'block'}
                 )
-            ], style={'width': '50%', 'display': 'inline-block'}
+            ], style={'width': '70%', 'display': 'inline-block'}
         )
     ]
 )
@@ -144,15 +140,15 @@ app.layout = html.Div(
     Input('my-date-picker-range', 'end_date'),
     Input("group-filter", "value"))
 def update_charts(start_date, end_date, value):
-    start_date_object = date.fromisoformat(start_date)
-    start_date_string = start_date_object.strftime('%d/%m/%Y')
-    end_date_object = date.fromisoformat(end_date)
-    end_date_string = end_date_object.strftime('%d/%m/%Y')
+    start_date_object = pd.to_datetime(start_date)
+    start_date_string = start_date_object.strftime('%d-%m-%Y')
+    end_date_object = pd.to_datetime(end_date)
+    end_date_string = end_date_object.strftime('%d-%m-%Y')
 
     filtered_data = df[df["group_id"] == value]
     filtered_data = filtered_data[filtered_data["grade_type"] == 'g']
     filtered_data = filtered_data[
-        (filtered_data["when"] > start_date_string) & (filtered_data['when'] < end_date_string)]
+        (filtered_data["when"] > start_date_object) & (filtered_data['when'] < end_date_object)]
     bar = px.bar(
         filtered_data,
         x='grade',
@@ -166,6 +162,7 @@ def update_charts(start_date, end_date, value):
                 'personnel_num': 'Табельный номер'},
         title='Оценки',
     )
+    bar.update_layout(margin=dict(t=25))
     return bar
 
 
@@ -175,15 +172,14 @@ def update_charts(start_date, end_date, value):
     Input('my-date-picker-range', 'end_date'),
     Input("group-filter", "value"))
 def update_charts(start_date, end_date, value):
-    start_date_object = date.fromisoformat(start_date)
+    start_date_object = pd.to_datetime(start_date)
     start_date_string = start_date_object.strftime('%d/%m/%Y')
-    end_date_object = date.fromisoformat(end_date)
+    end_date_object = pd.to_datetime(end_date)
     end_date_string = end_date_object.strftime('%d/%m/%Y')
-
     filtered_data = df[df["group_id"] == value]
     filtered_data = filtered_data[filtered_data["grade_type"] == 'a']
     filtered_data = filtered_data[
-        (filtered_data["when"] > start_date_string) & (filtered_data['when'] < end_date_string)]
+        (filtered_data["when"] > start_date_object) & (filtered_data['when'] < end_date_object)]
     filtered_data['attendance_viz'] = np.where(filtered_data['attendance'] == '0', 'Пропуск', 'Посещение')
 
     bar = px.pie(
@@ -193,6 +189,8 @@ def update_charts(start_date, end_date, value):
         hole=0.5,
         labels={'attendance_viz': 'Статус'}
     )
+    bar.update_layout(margin=dict(t=25), showlegend=False)
+    bar.update_traces(textinfo='percent+label')
     return bar
 
 
