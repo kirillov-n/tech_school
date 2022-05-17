@@ -61,7 +61,8 @@ app = DjangoDash('dashboard', external_stylesheets=external_stylesheets)
 app.layout = html.Div(
     children=[
         html.Div(children='Выберите группу',
-                 style={'display': 'block', 'fontSize': "24px", 'margin-bottom': '5px', 'margin-top': '0px', 'color': 'rgb(42, 63, 95)'},
+                 style={'display': 'block', 'fontSize': "24px", 'margin-bottom': '5px', 'margin-top': '0px',
+                        'color': 'rgb(42, 63, 95)'},
                  className='menu-title'),
         html.Div(
             dcc.Dropdown(
@@ -86,6 +87,7 @@ app.layout = html.Div(
                 show_outside_days=True,
                 number_of_months_shown=2,
             ), style={'width': '100%', 'display': 'block', 'margin-bottom': '5px', 'vertical-align': 'top'}),
+
         html.Div(
             dash_table.DataTable(
                 id='table',
@@ -141,9 +143,7 @@ app.layout = html.Div(
     Input("group-filter", "value"))
 def update_charts(start_date, end_date, value):
     start_date_object = pd.to_datetime(start_date)
-    start_date_string = start_date_object.strftime('%d-%m-%Y')
     end_date_object = pd.to_datetime(end_date)
-    end_date_string = end_date_object.strftime('%d-%m-%Y')
 
     filtered_data = df[df["group_id"] == value]
     filtered_data = filtered_data[filtered_data["grade_type"] == 'g']
@@ -153,16 +153,19 @@ def update_charts(start_date, end_date, value):
         filtered_data,
         x='grade',
         y='student_id',
-        color='FullName',
-        hover_data=['personnel_num'],
+        color='personnel_num',
+        hover_data=['FullName'],
         orientation='v',
-        labels={'FullName': 'ФИО студента',
+        labels={'FullName': 'ФИО',
                 'grade': 'Оценка',
-                'student_id': 'ID студента',
+                'student_id': 'ID',
                 'personnel_num': 'Табельный номер'},
         title='Оценки',
+        color_discrete_sequence=px.colors.sequential.RdBu
     )
     bar.update_layout(margin=dict(t=25))
+    bar.update_layout(legend=dict(font=dict(size=10)))
+    bar.update_traces(marker_line_color='rgb(69, 38, 43)', marker_line_width=1.5)
     return bar
 
 
@@ -173,9 +176,7 @@ def update_charts(start_date, end_date, value):
     Input("group-filter", "value"))
 def update_charts(start_date, end_date, value):
     start_date_object = pd.to_datetime(start_date)
-    start_date_string = start_date_object.strftime('%d/%m/%Y')
     end_date_object = pd.to_datetime(end_date)
-    end_date_string = end_date_object.strftime('%d/%m/%Y')
     filtered_data = df[df["group_id"] == value]
     filtered_data = filtered_data[filtered_data["grade_type"] == 'a']
     filtered_data = filtered_data[
@@ -187,10 +188,11 @@ def update_charts(start_date, end_date, value):
         names='attendance_viz',
         title="Процент посещений",
         hole=0.5,
-        labels={'attendance_viz': 'Статус'}
+        labels={'attendance_viz': 'Статус'},
+        color_discrete_sequence=px.colors.sequential.RdBu
     )
     bar.update_layout(margin=dict(t=25), showlegend=False)
-    bar.update_traces(textinfo='percent+label')
+    bar.update_traces(textinfo='percent+label', marker_line_width=1.5, marker_line_color='rgb(69, 38, 43)')
     return bar
 
 
