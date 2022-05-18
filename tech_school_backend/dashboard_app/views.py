@@ -45,7 +45,7 @@ df = pd.merge(df, df_class[['id', 'when']], left_on='class_id_id', right_on='id'
 df = pd.merge(df, df_groups[['id', 'name', 'program_id']], left_on='group_id', right_on='id')
 df = pd.merge(df, df_students[['id', 'personal_info_id', 'personnel_num']], left_on='student_id', right_on='id')
 df = pd.merge(df, df_personalinfo[['id', 'FullName']], left_on='personal_info_id', right_on='id')
-print(df)
+# print(df)
 # df.to_csv('out.csv', index=False)
 df['when'] = pd.to_datetime(df['when']).dt.date
 students_list = df[['personnel_num', 'group_id', 'FullName']].drop_duplicates(subset=['personnel_num'])
@@ -53,7 +53,8 @@ students_list = students_list.rename(columns={"personnel_num": "Табельны
 
 df_g = df[df["grade_type"] == 'g']
 
-fig_grades = px.bar(df_g, x=df_g['grade'].value_counts().index, y=df_g['grade'].value_counts().values.tolist(), title='Оценки')
+fig_grades = px.bar(df_g, x=df_g['grade'].value_counts().index, y=df_g['grade'].value_counts().values.tolist(),
+                    title='Оценки')
 pie_attendance = px.pie(df[df["grade_type"] == 'a'], names="attendance", title="Процент посещений", hole=0.5)
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = DjangoDash('dashboard', external_stylesheets=external_stylesheets)
@@ -149,17 +150,23 @@ def update_charts(start_date, end_date, value):
     filtered_data = filtered_data[filtered_data["grade_type"] == 'g']
     filtered_data = filtered_data[
         (filtered_data["when"] > start_date_object) & (filtered_data['when'] < end_date_object)]
-    data = filtered_data['grade'].value_counts()
-    filtered_df = pd.DataFrame(data).reset_index()
-    filtered_df.columns = ['grade', 'amount']
+    # data = filtered_data['grade'].value_counts()
+    # filtered_df = pd.DataFrame(data).reset_index()
+    # filtered_df.columns = ['grade', 'amount']
+
+    grade_groups = filtered_data[["FullName", "grade"]].groupby('grade')['FullName'].apply(list)
+    df_grade_groups = pd.DataFrame(grade_groups).reset_index()
+    if not df_grade_groups['FullName'].empty:
+        df_grade_groups['amount'] = df_grade_groups['FullName'].str.len()
+    else:
+        df_grade_groups['amount'] = 0
     bar = px.bar(
-        filtered_df,
+        df_grade_groups,
         x='grade',
         y='amount',
-        # color='grade',
-        # hover_data=['FullName'],
+        hover_data=['FullName'],
         orientation='v',
-        labels={'FullName': 'ФИО',
+        labels={'FullName': 'Судент(ы)',
                 'grade': 'Оценка',
                 'amount': 'Количество оценок',
                 'student_id': 'ID',
