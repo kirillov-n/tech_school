@@ -45,17 +45,17 @@ df = pd.merge(df, df_class[['id', 'when']], left_on='class_id_id', right_on='id'
 df = pd.merge(df, df_groups[['id', 'name', 'program_id']], left_on='group_id', right_on='id')
 df = pd.merge(df, df_students[['id', 'personal_info_id', 'personnel_num']], left_on='student_id', right_on='id')
 df = pd.merge(df, df_personalinfo[['id', 'FullName']], left_on='personal_info_id', right_on='id')
-
+print(df)
+# df.to_csv('out.csv', index=False)
 df['when'] = pd.to_datetime(df['when']).dt.date
-print(df['when'])
 students_list = df[['personnel_num', 'group_id', 'FullName']].drop_duplicates(subset=['personnel_num'])
 students_list = students_list.rename(columns={"personnel_num": "Табельный номер", "FullName": "ФИО"})
 
-fig_grades = px.bar(df[df["grade_type"] == 'g'], x='grade', y='student_id', title='Оценки')
+df_g = df[df["grade_type"] == 'g']
+
+fig_grades = px.bar(df_g, x=df_g['grade'].value_counts().index, y=df_g['grade'].value_counts().values.tolist(), title='Оценки')
 pie_attendance = px.pie(df[df["grade_type"] == 'a'], names="attendance", title="Процент посещений", hole=0.5)
-
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-
 app = DjangoDash('dashboard', external_stylesheets=external_stylesheets)
 
 app.layout = html.Div(
@@ -149,15 +149,19 @@ def update_charts(start_date, end_date, value):
     filtered_data = filtered_data[filtered_data["grade_type"] == 'g']
     filtered_data = filtered_data[
         (filtered_data["when"] > start_date_object) & (filtered_data['when'] < end_date_object)]
+    data = filtered_data['grade'].value_counts()
+    filtered_df = pd.DataFrame(data).reset_index()
+    filtered_df.columns = ['grade', 'amount']
     bar = px.bar(
-        filtered_data,
+        filtered_df,
         x='grade',
-        y='student_id',
-        color='personnel_num',
-        hover_data=['FullName'],
+        y='amount',
+        # color='grade',
+        # hover_data=['FullName'],
         orientation='v',
         labels={'FullName': 'ФИО',
                 'grade': 'Оценка',
+                'amount': 'Количество оценок',
                 'student_id': 'ID',
                 'personnel_num': 'Табельный номер'},
         title='Оценки',
@@ -166,6 +170,8 @@ def update_charts(start_date, end_date, value):
     bar.update_layout(margin=dict(t=25))
     bar.update_layout(legend=dict(font=dict(size=10)))
     bar.update_traces(marker_line_color='rgb(69, 38, 43)', marker_line_width=1.5)
+    bar.update_xaxes(dtick=1)
+    bar.update_yaxes(dtick=1)
     return bar
 
 
