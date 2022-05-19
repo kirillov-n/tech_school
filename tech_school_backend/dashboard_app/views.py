@@ -33,32 +33,33 @@ df_incp = pd.DataFrame(incp)
 df_calplan = pd.DataFrame(calplan)
 df_class = pd.DataFrame(_class)
 
-# df_personalinfo = pd.DataFrame(personalinfo)
-# df_personalinfo['FullName'] = df_personalinfo['surname'] + ' ' + df_personalinfo['name'] + ' ' + df_personalinfo[
-#     'patronymic']
-# df_students = pd.DataFrame(students)
-#
-# df = pd.merge(df_grades[['grade_type', 'grade', 'attendance', 'student_id', 'class_id_id']],
-#               df_membership[['group_id', 'student_id']],
-#               left_on='student_id', right_on='student_id')
-# df = pd.merge(df, df_class[['id', 'when']], left_on='class_id_id', right_on='id')
-# df = pd.merge(df, df_groups[['id', 'name', 'program_id']], left_on='group_id', right_on='id')
-# df = pd.merge(df, df_students[['id', 'personal_info_id', 'personnel_num']], left_on='student_id', right_on='id')
-# df = pd.merge(df, df_personalinfo[['id', 'FullName']], left_on='personal_info_id', right_on='id')
-# # print(df)
-# # df.to_csv('out.csv', index=False)
-# df['when'] = pd.to_datetime(df['when']).dt.date
-# students_list = df[['personnel_num', 'group_id', 'FullName']].drop_duplicates(subset=['personnel_num'])
-# students_list = students_list.rename(columns={"personnel_num": "Табельный номер", "FullName": "ФИО"})
+df_personalinfo = pd.DataFrame(personalinfo)
+df_personalinfo['FullName'] = df_personalinfo['surname'] + ' ' + df_personalinfo['name'] + ' ' + df_personalinfo[
+    'patronymic']
+df_students = pd.DataFrame(students)
 
-'''
-BEGINNING FOR VIZ BLOCK
-'''
-df = pd.read_csv(r"C:\Users\kiril\OneDrive\Документы\fakedata.csv", delimiter=';', encoding="windows-1251")
-df['when'] = pd.to_datetime(df['when']).dt.date
+df = pd.merge(df_grades[['grade_type', 'grade', 'attendance', 'student_id', 'class_id_id']],
+              df_membership[['group_id', 'student_id']],
+              left_on='student_id', right_on='student_id')
+df = pd.merge(df, df_class[['id', 'when']], left_on='class_id_id', right_on='id')
+df = pd.merge(df, df_groups[['id', 'name', 'program_id']], left_on='group_id', right_on='id')
+df = pd.merge(df, df_students[['id', 'personal_info_id', 'personnel_num']], left_on='student_id', right_on='id')
+df = pd.merge(df, df_personalinfo[['id', 'FullName']], left_on='personal_info_id', right_on='id')
 # print(df)
+# df.to_csv('out.csv', index=False)
+df['when'] = pd.to_datetime(df['when']).dt.date
 students_list = df[['personnel_num', 'group_id', 'FullName']].drop_duplicates(subset=['personnel_num'])
 students_list = students_list.rename(columns={"personnel_num": "Табельный номер", "FullName": "ФИО"})
+
+'''
+DELETE THIS
+BEGINNING FOR VIZ BLOCK
+'''
+# df = pd.read_csv(r"C:\Users\kiril\OneDrive\Документы\fakedata.csv", delimiter=';', encoding="windows-1251")
+# df['when'] = pd.to_datetime(df['when']).dt.date
+# # print(df)
+# students_list = df[['personnel_num', 'group_id', 'FullName']].drop_duplicates(subset=['personnel_num'])
+# students_list = students_list.rename(columns={"personnel_num": "Табельный номер", "FullName": "ФИО"})
 '''
 ENDING FOR VIZ BLOCK
 '''
@@ -163,9 +164,6 @@ def update_charts(start_date, end_date, value):
     filtered_data = filtered_data[filtered_data["grade_type"] == 'g']
     filtered_data = filtered_data[
         (filtered_data["when"] > start_date_object) & (filtered_data['when'] < end_date_object)]
-    # data = filtered_data['grade'].value_counts()
-    # filtered_df = pd.DataFrame(data).reset_index()
-    # filtered_df.columns = ['grade', 'amount']
 
     grade_groups = filtered_data[["FullName", "grade"]].groupby('grade')['FullName'].apply(list)
     df_grade_groups = pd.DataFrame(grade_groups).reset_index()
@@ -173,6 +171,7 @@ def update_charts(start_date, end_date, value):
         df_grade_groups['amount'] = df_grade_groups['FullName'].str.len()
         df_grade_groups['FullName'] = df_grade_groups['FullName'].astype(str)
         df_grade_groups['FullName'] = df_grade_groups['FullName'].str.replace('[][]', '')
+        df_grade_groups['FullName'] = df_grade_groups['FullName'].str.replace("'", "")
         df_grade_groups['FullName'] = df_grade_groups['FullName'].str.replace(',', ',<br>')
         print(df_grade_groups['FullName'])
     else:
@@ -212,7 +211,7 @@ def update_charts(start_date, end_date, value):
     filtered_data = filtered_data[filtered_data["grade_type"] == 'a']
     filtered_data = filtered_data[
         (filtered_data["when"] > start_date_object) & (filtered_data['when'] < end_date_object)]
-    filtered_data['attendance_viz'] = np.where(filtered_data['attendance'] == 0, 'Пропуск', 'Посещение')
+    filtered_data['attendance_viz'] = np.where(filtered_data['attendance'] == "0", 'Пропуск', 'Посещение')
 
     bar = px.pie(
         filtered_data,
