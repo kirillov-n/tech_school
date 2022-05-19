@@ -33,29 +33,42 @@ df_incp = pd.DataFrame(incp)
 df_calplan = pd.DataFrame(calplan)
 df_class = pd.DataFrame(_class)
 
-df_personalinfo = pd.DataFrame(personalinfo)
-df_personalinfo['FullName'] = df_personalinfo['surname'] + ' ' + df_personalinfo['name'] + ' ' + df_personalinfo[
-    'patronymic']
-df_students = pd.DataFrame(students)
+# df_personalinfo = pd.DataFrame(personalinfo)
+# df_personalinfo['FullName'] = df_personalinfo['surname'] + ' ' + df_personalinfo['name'] + ' ' + df_personalinfo[
+#     'patronymic']
+# df_students = pd.DataFrame(students)
+#
+# df = pd.merge(df_grades[['grade_type', 'grade', 'attendance', 'student_id', 'class_id_id']],
+#               df_membership[['group_id', 'student_id']],
+#               left_on='student_id', right_on='student_id')
+# df = pd.merge(df, df_class[['id', 'when']], left_on='class_id_id', right_on='id')
+# df = pd.merge(df, df_groups[['id', 'name', 'program_id']], left_on='group_id', right_on='id')
+# df = pd.merge(df, df_students[['id', 'personal_info_id', 'personnel_num']], left_on='student_id', right_on='id')
+# df = pd.merge(df, df_personalinfo[['id', 'FullName']], left_on='personal_info_id', right_on='id')
+# # print(df)
+# # df.to_csv('out.csv', index=False)
+# df['when'] = pd.to_datetime(df['when']).dt.date
+# students_list = df[['personnel_num', 'group_id', 'FullName']].drop_duplicates(subset=['personnel_num'])
+# students_list = students_list.rename(columns={"personnel_num": "Табельный номер", "FullName": "ФИО"})
 
-df = pd.merge(df_grades[['grade_type', 'grade', 'attendance', 'student_id', 'class_id_id']],
-              df_membership[['group_id', 'student_id']],
-              left_on='student_id', right_on='student_id')
-df = pd.merge(df, df_class[['id', 'when']], left_on='class_id_id', right_on='id')
-df = pd.merge(df, df_groups[['id', 'name', 'program_id']], left_on='group_id', right_on='id')
-df = pd.merge(df, df_students[['id', 'personal_info_id', 'personnel_num']], left_on='student_id', right_on='id')
-df = pd.merge(df, df_personalinfo[['id', 'FullName']], left_on='personal_info_id', right_on='id')
-# print(df)
-# df.to_csv('out.csv', index=False)
+'''
+BEGINNING FOR VIZ BLOCK
+'''
+df = pd.read_csv(r"C:\Users\kiril\OneDrive\Документы\fakedata.csv", delimiter=';', encoding="windows-1251")
 df['when'] = pd.to_datetime(df['when']).dt.date
+# print(df)
 students_list = df[['personnel_num', 'group_id', 'FullName']].drop_duplicates(subset=['personnel_num'])
 students_list = students_list.rename(columns={"personnel_num": "Табельный номер", "FullName": "ФИО"})
+'''
+ENDING FOR VIZ BLOCK
+'''
 
 df_g = df[df["grade_type"] == 'g']
 
 fig_grades = px.bar(df_g, x=df_g['grade'].value_counts().index, y=df_g['grade'].value_counts().values.tolist(),
                     title='Оценки')
 pie_attendance = px.pie(df[df["grade_type"] == 'a'], names="attendance", title="Процент посещений", hole=0.5)
+
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = DjangoDash('dashboard', external_stylesheets=external_stylesheets)
 
@@ -93,7 +106,7 @@ app.layout = html.Div(
             dash_table.DataTable(
                 id='table',
                 columns=[{"name": i, "id": i} for i in students_list[['Табельный номер', 'ФИО']]],
-                data=students_list.to_dict('records'),
+                data=df.to_dict('records'),
                 style_cell_conditional=[
                     {
                         'textAlign': 'left',
@@ -158,6 +171,10 @@ def update_charts(start_date, end_date, value):
     df_grade_groups = pd.DataFrame(grade_groups).reset_index()
     if not df_grade_groups['FullName'].empty:
         df_grade_groups['amount'] = df_grade_groups['FullName'].str.len()
+        df_grade_groups['FullName'] = df_grade_groups['FullName'].astype(str)
+        df_grade_groups['FullName'] = df_grade_groups['FullName'].str.replace('[][]', '')
+        df_grade_groups['FullName'] = df_grade_groups['FullName'].str.replace(',', ',<br>')
+        print(df_grade_groups['FullName'])
     else:
         df_grade_groups['amount'] = 0
     bar = px.bar(
@@ -176,7 +193,8 @@ def update_charts(start_date, end_date, value):
     )
     bar.update_layout(margin=dict(t=25))
     bar.update_layout(legend=dict(font=dict(size=10)))
-    bar.update_traces(marker_line_color='rgb(69, 38, 43)', marker_line_width=1.5)
+    bar.update_traces(marker_line_color='rgb(69, 38, 43)',
+                      marker_line_width=1.5)
     bar.update_xaxes(dtick=1)
     bar.update_yaxes(dtick=1)
     return bar
@@ -194,7 +212,7 @@ def update_charts(start_date, end_date, value):
     filtered_data = filtered_data[filtered_data["grade_type"] == 'a']
     filtered_data = filtered_data[
         (filtered_data["when"] > start_date_object) & (filtered_data['when'] < end_date_object)]
-    filtered_data['attendance_viz'] = np.where(filtered_data['attendance'] == '0', 'Пропуск', 'Посещение')
+    filtered_data['attendance_viz'] = np.where(filtered_data['attendance'] == 0, 'Пропуск', 'Посещение')
 
     bar = px.pie(
         filtered_data,
