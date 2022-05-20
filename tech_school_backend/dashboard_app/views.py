@@ -55,11 +55,11 @@ students_list = students_list.rename(columns={"personnel_num": "Табельны
 DELETE THIS
 BEGINNING FOR VIZ BLOCK
 '''
-# df = pd.read_csv(r"C:\Users\kiril\OneDrive\Документы\fakedata.csv", delimiter=';', encoding="windows-1251")
-# df['when'] = pd.to_datetime(df['when']).dt.date
-# # print(df)
-# students_list = df[['personnel_num', 'group_id', 'FullName']].drop_duplicates(subset=['personnel_num'])
-# students_list = students_list.rename(columns={"personnel_num": "Табельный номер", "FullName": "ФИО"})
+df = pd.read_csv(r"C:\Users\kiril\OneDrive\Документы\fakedata.csv", delimiter=';', encoding="windows-1251")
+df['when'] = pd.to_datetime(df['when']).dt.date
+# print(df)
+students_list = df[['personnel_num', 'group_id', 'FullName']].drop_duplicates(subset=['personnel_num'])
+students_list = students_list.rename(columns={"personnel_num": "Табельный номер", "FullName": "ФИО"})
 '''
 ENDING FOR VIZ BLOCK
 '''
@@ -173,7 +173,6 @@ def update_charts(start_date, end_date, value):
         df_grade_groups['FullName'] = df_grade_groups['FullName'].str.replace('[][]', '')
         df_grade_groups['FullName'] = df_grade_groups['FullName'].str.replace("'", "")
         df_grade_groups['FullName'] = df_grade_groups['FullName'].str.replace(',', ',<br>')
-        print(df_grade_groups['FullName'])
     else:
         df_grade_groups['amount'] = 0
     bar = px.bar(
@@ -211,7 +210,7 @@ def update_charts(start_date, end_date, value):
     filtered_data = filtered_data[filtered_data["grade_type"] == 'a']
     filtered_data = filtered_data[
         (filtered_data["when"] > start_date_object) & (filtered_data['when'] < end_date_object)]
-    filtered_data['attendance_viz'] = np.where(filtered_data['attendance'] == "0", 'Пропуск', 'Посещение')
+    filtered_data['attendance_viz'] = np.where(filtered_data['attendance'] == 0, 'Пропуск', 'Посещение')
 
     bar = px.pie(
         filtered_data,
@@ -231,6 +230,7 @@ def update_charts(start_date, end_date, value):
     Input("group-filter", "value"))
 def update_graphs(value):
     filtered_data = students_list[students_list["group_id"] == value]
+    filtered_data = filtered_data.sort_values(by=['Табельный номер'])
     return filtered_data.to_dict('records')
 
 

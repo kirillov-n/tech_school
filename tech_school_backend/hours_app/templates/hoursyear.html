@@ -37,6 +37,7 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                <a href="{% url 'download_file' %}">Скачать ведомость</a>
                 {% export queryset %}
             </div>
         </div>
