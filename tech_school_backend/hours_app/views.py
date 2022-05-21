@@ -154,7 +154,7 @@ class HoursYearView(TemplateView):
         context["queryset"] = queryset
 
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        filename = 'out.csv'
+        filename = 'out.xlsx'
         filepath = BASE_DIR + '/hours_app/download_files/' + filename
         df = pd.DataFrame(data)
         df['teacher'] = df['teacher'].astype(str)
@@ -162,20 +162,16 @@ class HoursYearView(TemplateView):
         df[['teacher', 'trash']] = df['teacher'].str.split(',', 1, expand=True)
         df = df.drop(columns='trash')
         df = df.rename(columns={"teacher": "Преподователь", "sum_working": "в рабочее время", "sum_personal": "в личное время", "sum_total": "итого за год"})
-        df.to_csv(filepath)
+        df.to_excel(filepath, encoding="utf-8")
 
-        '''
-        (".*,\\s*", ""
-        teacher,sum_working,sum_personal,sum_total
-        '''
         return context
 
 
 def download_file(request):
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    filename = 'out.csv'
+    filename = 'out.xlsx'
     filepath = BASE_DIR + '/hours_app/download_files/' + filename
-    path = open(filepath, 'r', encoding="utf-8")
+    path = open(filepath, 'rb')
     mime_type, _ = mimetypes.guess_type(filepath)
     response = HttpResponse(path, content_type=mime_type)
     response['Content-Disposition'] = "attachment; filename=%s" % filename
