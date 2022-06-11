@@ -28,3 +28,7 @@ python manage.py runserver
 ```
 {% export queryset %}
 ```
+
+## Скрипт скачивания производственного календаря
+
+Скрипт скачивания производственного календаря находится в ноутбуке Workersdays_from_csv.ipynb
