@@ -5,7 +5,7 @@ import datetime
 class ExportForm(forms.Form):
     CHOICES = (
         ("XLS", "XLS"),
-        ("DOCS", "DOCS"),
+        ("DOCS", "DOCX"),
         ("PDF", "PDF (не работает с кириллицей)"),
     )
 

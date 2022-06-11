@@ -17,6 +17,14 @@ import dash_html_components as html
 from django_plotly_dash import DjangoDash
 from datetime import date
 
+class DashboardView(TemplateView):
+    """
+    Представление "Дашборд", расширяющее админ-панель.
+    Служит для отображения дашборда.
+    """
+
+    template_name = "dashboard.html"
+
 grades = Grade.objects.all().values()
 groups = Group.objects.all().values()
 membership = Membership.objects.all().values()
@@ -45,31 +53,16 @@ df = pd.merge(df, df_class[['id', 'when']], left_on='class_id_id', right_on='id'
 df = pd.merge(df, df_groups[['id', 'name', 'program_id']], left_on='group_id', right_on='id')
 df = pd.merge(df, df_students[['id', 'personal_info_id', 'personnel_num']], left_on='student_id', right_on='id')
 df = pd.merge(df, df_personalinfo[['id', 'FullName']], left_on='personal_info_id', right_on='id')
-# print(df)
-# df.to_csv('out.csv', index=False)
 df['when'] = pd.to_datetime(df['when']).dt.date
 students_list = df[['personnel_num', 'group_id', 'FullName']].drop_duplicates(subset=['personnel_num'])
 students_list = students_list.rename(columns={"personnel_num": "Табельный номер", "FullName": "ФИО"})
-
-'''
-DELETE THIS
-BEGINNING FOR VIZ BLOCK
-'''
-df = pd.read_csv(r"C:\Users\kiril\OneDrive\Документы\fakedata.csv", delimiter=';', encoding="windows-1251")
-df['when'] = pd.to_datetime(df['when']).dt.date
-# print(df)
-students_list = df[['personnel_num', 'group_id', 'FullName']].drop_duplicates(subset=['personnel_num'])
-students_list = students_list.rename(columns={"personnel_num": "Табельный номер", "FullName": "ФИО"})
-'''
-ENDING FOR VIZ BLOCK
-'''
 
 df_g = df[df["grade_type"] == 'g']
 
 fig_grades = px.bar(df_g, x=df_g['grade'].value_counts().index, y=df_g['grade'].value_counts().values.tolist(),
                     title='Оценки')
 pie_attendance = px.pie(df[df["grade_type"] == 'a'], names="attendance", title="Процент посещений", hole=0.5)
-
+print(df)
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = DjangoDash('dashboard', external_stylesheets=external_stylesheets)
 
@@ -181,7 +174,7 @@ def update_charts(start_date, end_date, value):
         y='amount',
         hover_data=['FullName'],
         orientation='v',
-        labels={'FullName': 'Судент(ы)',
+        labels={'FullName': 'Студент(ы)',
                 'grade': 'Оценка',
                 'amount': 'Количество оценок',
                 'student_id': 'ID',
@@ -210,7 +203,7 @@ def update_charts(start_date, end_date, value):
     filtered_data = filtered_data[filtered_data["grade_type"] == 'a']
     filtered_data = filtered_data[
         (filtered_data["when"] > start_date_object) & (filtered_data['when'] < end_date_object)]
-    filtered_data['attendance_viz'] = np.where(filtered_data['attendance'] == 0, 'Пропуск', 'Посещение')
+    filtered_data['attendance_viz'] = np.where(filtered_data['attendance'] == '0', 'Пропуск', 'Посещение')
 
     bar = px.pie(
         filtered_data,
@@ -230,14 +223,6 @@ def update_charts(start_date, end_date, value):
     Input("group-filter", "value"))
 def update_graphs(value):
     filtered_data = students_list[students_list["group_id"] == value]
-    filtered_data = filtered_data.sort_values(by=['Табельный номер'])
+    filtered_data = filtered_data.sort_values(by=['ФИО'])
     return filtered_data.to_dict('records')
 
-
-class DashboardView(TemplateView):
-    """
-    Представление "Дашборд", расширяющее админ-панель.
-    Служит для отображения дашборда.
-    """
-
-    template_name = "dashboard.html"

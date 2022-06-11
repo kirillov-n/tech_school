@@ -88,6 +88,13 @@ class HoursView(TemplateView):
 
         context["training_hours"] = teachers_groups
         context["totals"] = totals
+        print(teachers_groups)
+
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        filename = 'out.xlsx'
+        filepath = BASE_DIR + '/hours_app/download_files/' + filename
+        df = pd.DataFrame(teachers_groups)
+        df.to_excel(filepath, encoding="utf-8")
 
         return context
 
@@ -153,6 +160,12 @@ class HoursYearView(TemplateView):
         context["data"] = data
         context["queryset"] = queryset
 
+        '''
+        Создание набора данных для преобразования его в формат xlsx.
+        
+        Так как модуль экспорта работает с queryset, для создания документа с необходимыми полями
+        был написан следующий код.
+        '''
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         filename = 'out.xlsx'
         filepath = BASE_DIR + '/hours_app/download_files/' + filename
@@ -161,7 +174,7 @@ class HoursYearView(TemplateView):
         df[['trash', 'teacher']] = df['teacher'].str.split(',', 1, expand=True)
         df[['teacher', 'trash']] = df['teacher'].str.split(',', 1, expand=True)
         df = df.drop(columns='trash')
-        df = df.rename(columns={"teacher": "Преподователь", "sum_working": "в рабочее время", "sum_personal": "в личное время", "sum_total": "итого за год"})
+        df = df.rename(columns={"teacher": "Преподаватель", "sum_working": "в рабочее время", "sum_personal": "в личное время", "sum_total": "ИТОГО за год"})
         df.to_excel(filepath, encoding="utf-8")
 
         return context
