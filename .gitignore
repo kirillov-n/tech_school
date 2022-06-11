@@ -1,5 +1,4 @@
 tech_school_db
-.gitignore
 __pycache__
 *.pyc
 row/
